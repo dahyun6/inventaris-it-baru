@@ -10,9 +10,9 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Mengambil data metrik (Disesuaikan dengan snake_case di Blade kamu)
+        // 1. Mengambil data metrik KPI
         $total_aset = Barang::count();
         $aset_tersedia = Barang::where('status', 'Tersedia')->count();
         $aset_dipinjam = Barang::where('status', 'Dipinjam')->count();
@@ -24,31 +24,128 @@ class DashboardController extends Controller
                                 ->take(5)
                                 ->get();
 
-        // 3. Mengambil riwayat pergerakan aset (Disamakan jadi 4 sesuai limit di Blade kamu)
+        // 3. Mengambil riwayat pergerakan aset
         $recent_handovers = RiwayatAset::with(['barang', 'user'])
                                       ->latest('tanggal_serah_terima')
                                       ->take(4)
                                       ->get();
 
-        // 4. LOGIKA GRAFIK AKTUAL (Januari - Juni 2026)
+        // 4. Daftar pilihan tahun & bulan untuk filter trend
+        $currentYear = (int) date('Y');
+        $yearsFromDb = Barang::selectRaw('YEAR(created_at) as year')
+            ->whereNotNull('created_at')
+            ->distinct()
+            ->pluck('year')
+            ->map(fn($y) => (int)$y)
+            ->toArray();
+
+        $availableYears = array_values(array_unique(array_merge([$currentYear], $yearsFromDb)));
+        rsort($availableYears);
+
+        $selectedYear = (int) $request->get('year', $currentYear);
+        if (!in_array($selectedYear, $availableYears)) {
+            $selectedYear = $currentYear;
+        }
+
+        $monthList = [
+            'all' => __('Semua Bulan (Sepanjang Tahun)'),
+            '01'  => __('Januari'),
+            '02'  => __('Februari'),
+            '03'  => __('Maret'),
+            '04'  => __('April'),
+            '05'  => __('Mei'),
+            '06'  => __('Juni'),
+            '07'  => __('Juli'),
+            '08'  => __('Agustus'),
+            '09'  => __('September'),
+            '10'  => __('Oktober'),
+            '11'  => __('November'),
+            '12'  => __('Desember'),
+        ];
+
+        $selectedMonth = $request->get('month', date('m'));
+        if ($selectedMonth !== 'all' && !array_key_exists($selectedMonth, $monthList)) {
+            $selectedMonth = date('m');
+        }
+
+        $isIndo = app()->getLocale() === 'id';
+        $shortMonths = $isIndo ? [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ] : [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug',
+            9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
+        ];
+
         $labels_grafik = [];
         $data_aset_masuk = [];
         $data_aset_diperbaiki = [];
 
-        for ($i = 1; $i <= 6; $i++) {
-            $tanggal = Carbon::create(2026, $i, 1);
-            $labels_grafik[] = $tanggal->format("M 'y");
+        if ($selectedMonth === 'all') {
+            // Aggregasi 12 bulan untuk tahun yang dipilih
+            $masukByMonth = Barang::selectRaw('MONTH(created_at) as m, COUNT(*) as total')
+                ->whereYear('created_at', $selectedYear)
+                ->groupBy('m')
+                ->pluck('total', 'm')
+                ->toArray();
 
-            // Hitung total aset masuk berdasarkan bulan di kolom created_at
-            $data_aset_masuk[] = Barang::whereYear('created_at', 2026)
-                ->whereMonth('created_at', $i)
-                ->count();
+            $diperbaikiByMonth = Barang::where('status', 'Tersedia')
+                ->whereYear('updated_at', $selectedYear)
+                ->selectRaw('MONTH(updated_at) as m, COUNT(*) as total')
+                ->groupBy('m')
+                ->pluck('total', 'm')
+                ->toArray();
 
-            // Hitung aset selesai diperbaiki (updated_at bulan ini & status 'Tersedia')
-            $data_aset_diperbaiki[] = Barang::whereYear('updated_at', 2026)
-                ->whereMonth('updated_at', $i)
-                ->where('status', 'Tersedia')
-                ->count();
+            for ($m = 1; $m <= 12; $m++) {
+                $labels_grafik[] = $shortMonths[$m];
+                $data_aset_masuk[] = (int) ($masukByMonth[$m] ?? 0);
+                $data_aset_diperbaiki[] = (int) ($diperbaikiByMonth[$m] ?? 0);
+            }
+        } else {
+            // Aggregasi harian untuk bulan & tahun yang dipilih
+            $mNum = (int) $selectedMonth;
+            $monthCarbon = Carbon::create($selectedYear, $mNum, 1);
+            $daysInMonth = $monthCarbon->daysInMonth;
+            $monthShortName = $shortMonths[$mNum];
+
+            $masukByDay = Barang::selectRaw('DAY(created_at) as d, COUNT(*) as total')
+                ->whereYear('created_at', $selectedYear)
+                ->whereMonth('created_at', $mNum)
+                ->groupBy('d')
+                ->pluck('total', 'd')
+                ->toArray();
+
+            $diperbaikiByDay = Barang::where('status', 'Tersedia')
+                ->whereYear('updated_at', $selectedYear)
+                ->whereMonth('updated_at', $mNum)
+                ->selectRaw('DAY(updated_at) as d, COUNT(*) as total')
+                ->groupBy('d')
+                ->pluck('total', 'd')
+                ->toArray();
+
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $labels_grafik[] = $day . ' ' . $monthShortName;
+                $data_aset_masuk[] = (int) ($masukByDay[$day] ?? 0);
+                $data_aset_diperbaiki[] = (int) ($diperbaikiByDay[$day] ?? 0);
+            }
+        }
+
+        $total_masuk_periode = array_sum($data_aset_masuk);
+        $total_diperbaiki_periode = array_sum($data_aset_diperbaiki);
+
+        // Jika request AJAX (misal saat user ganti dropdown tanpa refresh full page)
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'selectedYear' => $selectedYear,
+                'selectedMonth' => $selectedMonth,
+                'labels' => $labels_grafik,
+                'data_aset_masuk' => $data_aset_masuk,
+                'data_aset_diperbaiki' => $data_aset_diperbaiki,
+                'total_masuk' => $total_masuk_periode,
+                'total_diperbaiki' => $total_diperbaiki_periode,
+            ]);
         }
 
         // Kirim semua variabel ke view dashboard
@@ -59,9 +156,15 @@ class DashboardController extends Controller
             'aset_rusak', 
             'topCategories', 
             'recent_handovers',
+            'availableYears',
+            'selectedYear',
+            'monthList',
+            'selectedMonth',
             'labels_grafik',
             'data_aset_masuk',
-            'data_aset_diperbaiki'
+            'data_aset_diperbaiki',
+            'total_masuk_periode',
+            'total_diperbaiki_periode'
         ));
     }
 }

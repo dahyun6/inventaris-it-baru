@@ -1,56 +1,54 @@
-@extends('layouts.app') {{-- Sesuaikan dengan nama file layout Anda (misal: layouts.master atau layouts.app) --}}
+@extends('layout')
+
+@section('title', 'Tambah User Baru')
+
+@section('header_actions')
+<a href="{{ route('users.index') }}" class="btn btn-phoenix-secondary btn-sm">
+    <i class="fas fa-arrow-left me-1"></i> Kembali ke Master User
+</a>
+@endsection
 
 @section('content')
-<div class="content-header">
-    <div class="container-fluid">
-        <h1 class="m-0">Tambah User Baru</h1>
-    </div>
-</div>
-
-<section class="content">
-    <div class="container-fluid">
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Form Data User</h3>
+<div class="row">
+    <div class="col-lg-8 col-xl-7 mx-auto">
+        <div class="phoenix-card">
+            <div class="phoenix-card-header">
+                <h6 class="phoenix-card-title">
+                    <i class="fas fa-user-plus text-primary"></i>
+                    Form Registrasi User Baru
+                </h6>
             </div>
-            
             <form action="{{ route('users.store') }}" method="POST">
-                @csrf <div class="card-body">
-                    
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                @csrf
+                <div class="phoenix-card-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-danger" for="name">Nama Lengkap *</label>
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Masukkan nama pengguna" value="{{ old('name') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-danger" for="email">Alamat Email *</label>
+                        <input type="email" name="email" class="form-control" id="email" placeholder="contoh: user@company.com" value="{{ old('email') }}" required>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-danger" for="password">Password *</label>
+                            <input type="password" name="password" class="form-control" id="password" placeholder="Minimal 8 karakter" required>
                         </div>
-                    @endif
-
-                    <div class="form-group">
-                        <label for="name">Nama Lengkap</label>
-                        <input type="text" name="name" class="form-control" id="name" placeholder="Masukkan nama" value="{{ old('name') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Alamat Email</label>
-                        <input type="email" name="email" class="form-control" id="email" placeholder="Masukkan email" value="{{ old('email') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password_confirmation">Konfirmasi Password</label>
-                        <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Ketik ulang password" required>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-danger" for="password_confirmation">Konfirmasi Password *</label>
+                            <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Ketik ulang password" required>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Simpan User</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-default float-right">Batal</a>
+                <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+                    <a href="{{ route('users.index') }}" class="btn btn-phoenix-secondary btn-sm">Batal</a>
+                    <button type="submit" class="btn btn-phoenix-primary btn-sm px-4">
+                        <i class="fas fa-save me-1"></i> Simpan User
+                    </button>
                 </div>
             </form>
-            </div>
+        </div>
     </div>
-</section>
+</div>
 @endsection

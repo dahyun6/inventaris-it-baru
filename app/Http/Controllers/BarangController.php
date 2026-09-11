@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Barang;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Vendor;
 use App\Models\RiwayatAset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // <-- Wajib untuk membuat string acak (Auto-Generate SN)
@@ -17,8 +18,23 @@ class BarangController extends Controller
     {
         $barangs = Barang::with('category')->latest()->get(); 
         $categories = Category::all(); 
+        $vendors = Vendor::orderBy('nama_vendor')->get();
         
-        return view('barang.index', compact('barangs', 'categories'));
+        return view('barang.index', compact('barangs', 'categories', 'vendors'));
+    }
+
+    public function create()
+    {
+        $categories = Category::all();
+        $vendors = Vendor::orderBy('nama_vendor')->get();
+        return view('barang.create', compact('categories', 'vendors'));
+    }
+
+    public function edit(Barang $barang)
+    {
+        $categories = Category::all();
+        $vendors = Vendor::orderBy('nama_vendor')->get();
+        return view('barang.edit', compact('barang', 'categories', 'vendors'));
     }
 
     public function store(Request $request)

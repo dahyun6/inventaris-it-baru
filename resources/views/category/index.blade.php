@@ -1,155 +1,215 @@
 @extends('layout')
 
-@section('title', 'Master Kategori')
+@section('title', __('Kategori Master Aset'))
+
+@section('header_actions')
+<button type="button" class="btn btn-phoenix-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">
+    <i class="fas fa-plus me-1"></i> {{ __('Tambah Kategori') }}
+</button>
+@endsection
 
 @section('content')
 <style>
-    /* Styling khas Tabel & Card AdminLTE */
-    .card-admin { background: #fff; border-radius: 4px; box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); margin-bottom: 20px; border-top: 3px solid #007bff; }
-    .card-header-admin { padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,.125); display: flex; justify-content: space-between; align-items: center; }
-    
-    .table-admin { margin-bottom: 0; font-size: 14.5px; }
-    .table-admin thead th { border-bottom: 2px solid #dee2e6; color: #343a40; font-weight: 600; background-color: #f8f9fa; }
-    .table-admin tbody td { vertical-align: middle; border-bottom: 1px solid #dee2e6; color: #495057; }
-
-    /* Badge Solid khas AdminLTE */
-    .badge-unit { background-color: #007bff; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
-    
-    .btn-action { background: #fff; border: 1px solid #ced4da; color: #495057; padding: 2px 8px; }
-    .btn-action:hover { background: #f8f9fa; }
-
-    .search-input-admin { border: 1px solid #ced4da; border-radius: 4px; padding: 5px 12px; font-size: 13px; outline: none; width: 250px; }
-    .search-input-admin:focus { border-color: #80bdff; }
+    .table-phoenix {
+        margin-bottom: 0;
+        font-size: 0.835rem;
+        width: 100% !important;
+        vertical-align: middle;
+    }
+    .table-phoenix thead th {
+        background-color: #f8fafc !important;
+        border-bottom: 1px solid var(--phoenix-border-color) !important;
+        color: #525b75 !important;
+        font-weight: 700 !important;
+        font-size: 0.725rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 0.75rem 1.25rem !important;
+    }
+    .table-phoenix tbody td {
+        border-bottom: 1px solid var(--phoenix-border-color);
+        color: var(--phoenix-text-body);
+        padding: 0.85rem 1.25rem !important;
+    }
+    .table-phoenix tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    .search-input-phoenix {
+        border: 1px solid var(--phoenix-border-color);
+        border-radius: 20px;
+        padding: 0.4rem 0.85rem 0.4rem 2rem;
+        font-size: 0.8125rem;
+        background-color: #f8fafc;
+        outline: none;
+        width: 240px;
+        transition: all 0.2s ease;
+    }
+    .search-input-phoenix:focus {
+        background-color: #ffffff;
+        border-color: var(--phoenix-primary);
+        box-shadow: 0 0 0 3px rgba(56, 116, 255, 0.15);
+    }
+    .search-wrapper-phoenix {
+        position: relative;
+    }
+    .search-wrapper-phoenix i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8592a3;
+        font-size: 0.8rem;
+        pointer-events: none;
+    }
 </style>
 
 <div class="row">
-    <div class="col-md-10 mx-auto">
-        
-        <div class="card-admin">
-            <div class="card-header-admin">
-                <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="btn btn-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">
-                        <i class="fas fa-plus me-1"></i> Tambah Kategori
-                    </button>
-                    <input type="text" id="categorySearch" class="search-input-admin" placeholder="Search categories...">
+    <div class="col-lg-10 col-xl-9 mx-auto">
+        <div class="phoenix-card">
+            <div class="phoenix-card-header">
+                <div class="search-wrapper-phoenix">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="categorySearch" class="search-input-phoenix" placeholder="{{ __('Cari kategori...') }}">
                 </div>
-                <div class="text-muted small">Total: <strong>{{ $categories->count() }}</strong> Kategori</div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-phoenix badge-phoenix-primary">
+                        Total: {{ $categories->count() }} {{ __('Kategori Assets') }}
+                    </span>
+                </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-admin table-hover">
+                <table class="table table-phoenix">
                     <thead>
                         <tr>
-                            <th width="8%" class="ps-3">#</th>
-                            <th width="35%">NAMA KATEGORI</th>
-                            <th width="15%">KODE PREFIX</th>
-                            <th width="20%" class="text-center">TOTAL ASET</th>
-                            <th width="22%" class="text-center pe-3">AKSI</th>
+                            <th width="8%">{{ __('NO') }}</th>
+                            <th width="35%">{{ __('NAMA KATEGORI') }}</th>
+                            <th width="20%">{{ __('KODE PREFIX') }}</th>
+                            <th width="20%" class="text-center">{{ __('TOTAL ASET') }}</th>
+                            <th width="17%" class="text-center">{{ __('AKSI') }}</th>
                         </tr>
                     </thead>
                     <tbody id="categoryTableBody">
                         @forelse($categories as $index => $cat)
                         <tr class="category-row">
-                            <td class="ps-3 text-muted">{{ $index + 1 }}</td>
+                            <td class="text-muted">{{ $index + 1 }}</td>
                             <td class="fw-bold text-dark category-name">{{ $cat->nama_kategori }}</td>
                             <td>
                                 @if($cat->kode_prefix)
-                                    <span class="badge bg-secondary">{{ $cat->kode_prefix }}</span>
+                                    <span class="badge bg-light text-primary border font-monospace px-2 py-1" style="font-size: 0.75rem;">
+                                        {{ $cat->kode_prefix }}
+                                    </span>
                                 @else
-                                    <span class="text-muted fst-italic">-</span>
+                                    <span class="text-muted fst-italic small">-</span>
                                 @endif
                             </td>
                             <td class="text-center">
-                                <span class="badge-unit shadow-sm">{{ $cat->barangs_count }} UNIT</span>
+                                <span class="badge-phoenix badge-phoenix-info font-monospace">
+                                    {{ $cat->barangs_count }} UNIT
+                                </span>
                             </td>
-                            <td class="text-center pe-3">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-action text-warning" data-bs-toggle="modal" data-bs-target="#modalEditKategori{{ $cat->id }}" title="Edit">
-                                        <i class="fas fa-edit"></i>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-phoenix-secondary py-1 px-2 btn-edit-category" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalEditKategori" 
+                                        data-url="{{ route('category.update', $cat->id) }}"
+                                        data-nama="{{ $cat->nama_kategori }}"
+                                        data-prefix="{{ $cat->kode_prefix }}"
+                                        title="{{ __('Edit Kategori') }}">
+                                        <i class="fas fa-pen text-warning"></i>
                                     </button>
-                                    <form action="{{ route('category.destroy', $cat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus kategori ini? Semua barang di dalamnya juga akan ikut terhapus!')">
+                                    <form action="{{ route('category.destroy', $cat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('Hapus kategori ini?') }}')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-action text-danger" title="Hapus">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Hapus Data') }}">
+                                            <i class="fas fa-trash text-danger"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-
-                        <div class="modal fade" id="modalEditKategori{{ $cat->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-sm">
-                                <div class="modal-content" style="border-radius: 4px;">
-                                    <div class="modal-header bg-light border-0">
-                                        <h5 class="modal-title fs-6 fw-bold">Edit Kategori</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form action="{{ route('category.update', $cat->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label class="form-label small fw-bold">Nama Kategori <span class="text-danger">*</span></label>
-                                                <input type="text" name="nama_kategori" class="form-control form-control-sm" required value="{{ $cat->nama_kategori }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label small fw-bold">Kode Prefix (Opsional)</label>
-                                                <input type="text" name="kode_prefix" class="form-control form-control-sm" value="{{ $cat->kode_prefix }}" placeholder="Ex: L, PC, PRN...">
-                                                <small class="text-muted" style="font-size: 11px;">Akan digunakan sebagai huruf awalan kode aset otomatis.</small>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-light border-0">
-                                            <button type="button" class="btn btn-xs btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                            <button type="submit" class="btn btn-xs btn-success">Update</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">Belum ada kategori master.</td>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open fs-2 opacity-25 mb-2"></i><br>
+                                {{ __('Belum ada kategori master terdaftar.') }}
+                            </td>
                         </tr>
                         @endforelse
                         
                         <tr id="noCategoryFound" style="display: none;">
-                            <td colspan="5" class="text-center py-4 text-danger fw-bold">Kategori tidak ditemukan.</td>
+                            <td colspan="5" class="text-center py-4 text-danger fw-semibold">
+                                <i class="fas fa-circle-exclamation me-1"></i> {{ __('Kategori tidak ditemukan.') }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
-            <div class="p-3 bg-light border-top text-end" style="font-size: 12px; color: #6c757d;">
-                Showing All Registered IT Asset Categories
+            <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center" style="font-size: 0.775rem; color: var(--phoenix-text-muted);">
+                <span>{{ __('Kategori Master Aset') }}</span>
+                <span class="font-monospace">Prefix used for auto-generated asset codes</span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- MODAL EDIT KATEGORI -->
+<div class="modal fade" id="modalEditKategori" tabindex="-1" aria-labelledby="modalEditKategoriLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--phoenix-border-color); max-width: 440px; margin: auto;">
+            <div class="modal-header border-bottom">
+                <h6 class="modal-title fw-bold" id="modalEditKategoriLabel"><i class="fas fa-pen-to-square text-primary me-2"></i>{{ __('Edit Kategori') }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditCategory" action="" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" for="edit_nama_kategori">{{ __('Nama Kategori') }} <span class="text-danger">*</span></label>
+                        <input type="text" id="edit_nama_kategori" name="nama_kategori" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold" for="edit_kode_prefix">{{ __('Kode Prefix (Opsional)') }}</label>
+                        <input type="text" id="edit_kode_prefix" name="kode_prefix" class="form-control font-monospace" placeholder="Ex: L, PC, PRN...">
+                        <small class="text-muted" style="font-size: 0.725rem;">Digunakan sebagai awalan penomoran aset otomatis</small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-phoenix-secondary btn-sm" data-bs-dismiss="modal">{{ __('Batal') }}</button>
+                    <button type="submit" class="btn btn-phoenix-primary btn-sm px-3"><i class="fas fa-save me-1"></i> {{ __('Update') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH KATEGORI -->
 <div class="modal fade" id="modalTambahKategori" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius: 4px;">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fs-6 fw-bold">Tambah Kategori</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--phoenix-border-color); max-width: 440px; margin: auto;">
+            <div class="modal-header border-bottom">
+                <h6 class="modal-title fw-bold"><i class="fas fa-circle-plus text-primary me-2"></i>{{ __('Tambah Kategori') }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('category.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Nama Kategori <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_kategori" class="form-control form-control-sm" placeholder="Ex: Server, Printer..." required>
+                        <label class="form-label small fw-bold">{{ __('Nama Kategori') }} <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_kategori" class="form-control" placeholder="Contoh: Laptop, Printer..." required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Kode Prefix (Opsional)</label>
-                        <input type="text" name="kode_prefix" class="form-control form-control-sm" placeholder="Ex: L, PC, PRN...">
-                        <small class="text-muted" style="font-size: 11px;">Akan digunakan sebagai huruf awalan kode aset otomatis.</small>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">{{ __('Kode Prefix (Opsional)') }}</label>
+                        <input type="text" name="kode_prefix" class="form-control font-monospace" placeholder="Ex: L, PC, PRN...">
+                        <small class="text-muted" style="font-size: 0.725rem;">Digunakan sebagai awalan penomoran aset otomatis</small>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-xs btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-xs btn-primary">Simpan</button>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-phoenix-secondary btn-sm" data-bs-dismiss="modal">{{ __('Batal') }}</button>
+                    <button type="submit" class="btn btn-phoenix-primary btn-sm px-3"><i class="fas fa-save me-1"></i> {{ __('Simpan') }}</button>
                 </div>
             </form>
         </div>
@@ -165,22 +225,33 @@
         const rows = document.querySelectorAll('.category-row');
         const noCategoryFound = document.getElementById('noCategoryFound');
 
-        categorySearch.addEventListener('input', function() {
-            const term = this.value.toLowerCase();
-            let visibleRows = 0;
-
-            rows.forEach(row => {
-                const name = row.querySelector('.category-name').textContent.toLowerCase();
-                if (name.includes(term)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
-                }
+        document.querySelectorAll('.btn-edit-category').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const form = document.getElementById('formEditCategory');
+                form.action = this.dataset.url;
+                document.getElementById('edit_nama_kategori').value = this.dataset.nama || '';
+                document.getElementById('edit_kode_prefix').value = this.dataset.prefix || '';
             });
-
-            noCategoryFound.style.display = visibleRows === 0 ? '' : 'none';
         });
+
+        if (categorySearch) {
+            categorySearch.addEventListener('input', function() {
+                const term = this.value.toLowerCase().trim();
+                let visibleRows = 0;
+
+                rows.forEach(row => {
+                    const name = row.querySelector('.category-name').textContent.toLowerCase();
+                    if (name.includes(term)) {
+                        row.style.display = '';
+                        visibleRows++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                noCategoryFound.style.display = (visibleRows === 0 && rows.length > 0) ? '' : 'none';
+            });
+        }
     });
 </script>
 @endpush

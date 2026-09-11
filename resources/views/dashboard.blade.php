@@ -1,183 +1,307 @@
 @extends('layout')
 
-@section('title', 'Dashboard')
+@section('title', __('Dashboard Overview'))
+
+@section('header_actions')
+<div class="d-flex gap-2">
+    <a href="{{ route('handover.create') }}" class="btn btn-phoenix-secondary btn-sm">
+        <i class="fas fa-file-signature me-1"></i> {{ __('Tanda Terima Baru') }}
+    </a>
+    <a href="{{ route('barang.index') }}" class="btn btn-phoenix-primary btn-sm">
+        <i class="fas fa-boxes-stacked me-1"></i> {{ __('Kelola Aset') }}
+    </a>
+</div>
+@endsection
 
 @section('content')
 
 <style>
-    /* =========================================================
-       STYLE KHUSUS WIDGET ADMINLTE (Small Boxes)
-       ========================================================= */
-    .small-box {
-        border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0,0,0,.125), 0 1px 2px rgba(0,0,0,.2);
-        display: block;
-        margin-bottom: 20px;
-        position: relative;
-        color: #fff;
-        overflow: hidden;
+    /* Phoenix Dashboard KPI Card */
+    .phoenix-stat-card {
+        background: #ffffff;
+        border: 1px solid var(--phoenix-border-color);
+        border-radius: 10px;
+        padding: 1.25rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .small-box > .inner {
-        padding: 15px;
-        position: relative;
-        z-index: 2;
+    .phoenix-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
     }
-    .small-box h3 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin: 0 0 5px;
-        white-space: nowrap;
-        padding: 0;
+    .stat-icon-wrapper {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
     }
-    .small-box p {
-        font-size: 1.05rem;
-        margin-bottom: 0;
+    .stat-number {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--phoenix-text-emphasis);
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        margin-top: 0.5rem;
     }
-    .small-box .icon {
-        color: rgba(0,0,0,.15);
-        z-index: 1;
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        transition: transform .3s linear;
+    .stat-label {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--phoenix-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
-    .small-box .icon i {
-        font-size: 70px;
-    }
-    .small-box:hover .icon {
-        transform: scale(1.1);
-    }
-    .small-box > .small-box-footer {
-        background-color: rgba(0,0,0,.1);
-        color: rgba(255,255,255,.8);
-        display: block;
-        padding: 3px 0;
-        position: relative;
-        text-align: center;
-        text-decoration: none;
-        z-index: 10;
-        font-size: 14px;
-    }
-    .small-box > .small-box-footer:hover {
-        color: #fff;
-        background-color: rgba(0,0,0,.15);
-    }
-    
-    /* Warna Solid AdminLTE */
-    .bg-info-admin { background-color: #0d6efd !important; } /* Biru */
-    .bg-success-admin { background-color: #198754 !important; } /* Hijau */
-    .bg-warning-admin { background-color: #ffc107 !important; color: #212529 !important; } /* Kuning */
-    .bg-warning-admin .icon { color: rgba(0,0,0,.1) !important; }
-    .bg-warning-admin .small-box-footer { color: rgba(0,0,0,.6) !important; }
-    .bg-warning-admin .small-box-footer:hover { color: #000 !important; background-color: rgba(0,0,0,.1) !important; }
-    .bg-danger-admin { background-color: #dc3545 !important; } /* Merah */
 
-    /* Card Umum AdminLTE */
-    .card-admin { background: #fff; border-radius: 4px; box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); margin-bottom: 20px; }
-    .card-header-admin { padding: 12px 20px; border-bottom: 1px solid rgba(0,0,0,.125); display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-    
-    /* Style Chat Widget (Meniru UI Direct Chat) */
-    .direct-chat-messages { padding: 10px; height: 350px; overflow-y: auto; }
-    .direct-chat-msg { margin-bottom: 15px; }
-    .direct-chat-info { display: block; margin-bottom: 2px; font-size: 12px; }
-    .direct-chat-name { font-weight: 600; }
-    .direct-chat-timestamp { color: #697582; }
-    .direct-chat-img { border-radius: 50%; float: left; height: 40px; width: 40px; }
-    .direct-chat-text { border-radius: 4px; background: #d2d6de; border: 1px solid #d2d6de; color: #444; margin: 5px 0 0 50px; padding: 5px 10px; position: relative; }
-    .direct-chat-text::after { border-color: transparent #d2d6de transparent transparent; border-width: 6px; content: " "; position: absolute; top: 15px; left: -12px; height: 0; width: 0; pointer-events: none; border-style: solid; }
+    /* Activity feed in Phoenix style */
+    .timeline-item {
+        position: relative;
+        padding-left: 1.75rem;
+        padding-bottom: 1.25rem;
+    }
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 24px;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--phoenix-border-color);
+    }
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 6px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: var(--phoenix-primary);
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 2px var(--phoenix-primary-subtle);
+    }
 </style>
 
-<div class="row">
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-info-admin">
-            <div class="inner">
-                <h3>{{ $total_aset }}</h3>
-                <p>Total Aset Terdaftar</p>
+<!-- PHOENIX KPI METRICS -->
+<div class="row g-3 mb-4">
+    <!-- Total Aset -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="phoenix-stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="stat-label">{{ __('Total Aset Terdaftar') }}</span>
+                <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                    <i class="fas fa-boxes-stacked"></i>
+                </div>
             </div>
-            <div class="icon"><i class="fas fa-boxes"></i></div>
-            <a href="{{ route('barang.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right ms-1"></i></a>
+            <div>
+                <div class="stat-number">{{ $total_aset }}</div>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <span class="badge-phoenix badge-phoenix-primary">
+                        <i class="fas fa-database"></i> {{ __('Hardware & Devices') }}
+                    </span>
+                    <a href="{{ route('barang.index') }}" class="text-decoration-none text-primary fw-semibold small">
+                        {{ __('Lihat') }} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-success-admin">
-            <div class="inner">
-                <h3>{{ $aset_tersedia }}</h3>
-                <p>Aset Tersedia (Gudang)</p>
+
+    <!-- Aset Tersedia -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="phoenix-stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="stat-label">{{ __('Aset Tersedia (Gudang)') }}</span>
+                <div class="stat-icon-wrapper bg-success-subtle text-success">
+                    <i class="fas fa-circle-check"></i>
+                </div>
             </div>
-            <div class="icon"><i class="fas fa-check-circle"></i></div>
-            <a href="{{ route('barang.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right ms-1"></i></a>
+            <div>
+                <div class="stat-number text-success">{{ $aset_tersedia }}</div>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <span class="badge-phoenix badge-phoenix-success">
+                        <i class="fas fa-warehouse"></i> {{ __('Siap Pakai') }}
+                    </span>
+                    <a href="{{ route('barang.index') }}" class="text-decoration-none text-success fw-semibold small">
+                        {{ __('Filter') }} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-warning-admin">
-            <div class="inner">
-                <h3>{{ $aset_dipinjam }}</h3>
-                <p>Aset Sedang Dipinjam</p>
+
+    <!-- Aset Dipinjam -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="phoenix-stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="stat-label">{{ __('Aset Sedang Dipinjam') }}</span>
+                <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+                    <i class="fas fa-handshake"></i>
+                </div>
             </div>
-            <div class="icon"><i class="fas fa-handshake"></i></div>
-            <a href="{{ route('barang.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right ms-1"></i></a>
+            <div>
+                <div class="stat-number text-warning">{{ $aset_dipinjam }}</div>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <span class="badge-phoenix badge-phoenix-warning">
+                        <i class="fas fa-user-check"></i> {{ __('Active in Use') }}
+                    </span>
+                    <a href="{{ route('handover.history') }}" class="text-decoration-none text-warning fw-semibold small">
+                        {{ __('Riwayat') }} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-danger-admin">
-            <div class="inner">
-                <h3>{{ $aset_rusak }}</h3>
-                <p>Aset Rusak / Suspended</p>
+
+    <!-- Aset Rusak -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="phoenix-stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="stat-label">{{ __('Aset Rusak / Perbaikan') }}</span>
+                <div class="stat-icon-wrapper bg-danger-subtle text-danger">
+                    <i class="fas fa-screwdriver-wrench"></i>
+                </div>
             </div>
-            <div class="icon"><i class="fas fa-tools"></i></div>
-            <a href="{{ route('barang.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right ms-1"></i></a>
+            <div>
+                <div class="stat-number text-danger">{{ $aset_rusak }}</div>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <span class="badge-phoenix badge-phoenix-danger">
+                        <i class="fas fa-triangle-exclamation"></i> {{ __('Maintenance') }}
+                    </span>
+                    <a href="{{ route('barang.index') }}" class="text-decoration-none text-danger fw-semibold small">
+                        {{ __('Review') }} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    
-    <div class="col-lg-7">
-        <div class="card-admin">
-            <div class="card-header-admin">
-                <span><i class="fas fa-chart-line me-2"></i> Trend Penambahan Aset (Tahun Ini)</span>
+<!-- CHARTS & RECENT ACTIVITY -->
+<div class="row g-4">
+    <!-- Trend Chart -->
+    <div class="col-lg-7 col-xl-8">
+        <div class="phoenix-card h-100">
+            <div class="phoenix-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h6 class="phoenix-card-title">
+                        <i class="fas fa-chart-line text-primary"></i>
+                        {{ __('Trend Pergerakan & Penambahan Aset') }}
+                    </h6>
+                    <small class="text-muted">{{ __('Monitoring pengadaan aset masuk vs aset selesai perbaikan') }}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select id="selectYearTrend" class="form-select form-select-sm" style="width: auto; min-width: 90px; border-radius: 6px; font-weight: 600; font-size: 0.8125rem;">
+                        @foreach($availableYears as $y)
+                            <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <select id="selectMonthTrend" class="form-select form-select-sm" style="width: auto; min-width: 155px; border-radius: 6px; font-weight: 600; font-size: 0.8125rem;">
+                        @foreach($monthList as $value => $label)
+                            <option value="{{ $value }}" {{ $selectedMonth === $value ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="assetTrendChart" height="250"></canvas>
+            <div class="phoenix-card-body">
+                <!-- Phoenix Total Sells Mini Summary -->
+                <div class="d-flex align-items-center flex-wrap gap-4 mb-3 pb-3 border-bottom">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                            {{ __('Total Aset Masuk') }}
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="fs-5 fw-bold text-dark" id="statTotalMasuk">{{ $total_masuk_periode }}</span>
+                            <span class="badge-phoenix badge-phoenix-primary" style="font-size: 0.6875rem;">
+                                <i class="fas fa-box-archive"></i> Unit
+                            </span>
+                        </div>
+                    </div>
+                    <div class="vr opacity-25 d-none d-sm-block" style="height: 32px;"></div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                            {{ __('Total Selesai Diperbaiki') }}
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="fs-5 fw-bold text-success" id="statTotalDiperbaiki">{{ $total_diperbaiki_periode }}</span>
+                            <span class="badge-phoenix badge-phoenix-success" style="font-size: 0.6875rem;">
+                                <i class="fas fa-screwdriver-wrench"></i> Unit
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: 280px; position: relative;">
+                    <canvas id="assetTrendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-5">
-        <div class="card-admin">
-            <div class="card-header-admin">
-                <span><i class="far fa-comments me-2"></i> Log Handover Terbaru</span>
-                <span class="badge bg-primary rounded-pill">{{ $recent_handovers->count() }}</span>
-            </div>
-            <div class="card-body p-0">
-                <div class="direct-chat-messages">
-                    
-                    @forelse($recent_handovers as $log)
-                    <div class="direct-chat-msg">
-                        <div class="direct-chat-info clearfix">
-                            <span class="direct-chat-name float-start">{{ $log->user ? $log->user->name : 'Gudang IT' }}</span>
-                            <span class="direct-chat-timestamp float-end">{{ \Carbon\Carbon::parse($log->tanggal_serah_terima)->format('d M h:i a') }}</span>
-                        </div>
-                        <img class="direct-chat-img" src="https://ui-avatars.com/api/?name={{ urlencode($log->user ? $log->user->name : 'Gudang') }}&background=random" alt="User Image">
-                        <div class="direct-chat-text">
-                            <strong>{{ $log->barang->nama_barang }}</strong> diserahterimakan. <br>
-                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{ $log->lokasi }}</small>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center text-muted mt-5">
-                        <i class="fas fa-sleep fs-2 opacity-50 mb-2"></i><br>
-                        Belum ada aktivitas serah terima.
-                    </div>
-                    @endforelse
-
+    <!-- Handover Activity Feed -->
+    <div class="col-lg-5 col-xl-4">
+        <div class="phoenix-card h-100">
+            <div class="phoenix-card-header">
+                <div>
+                    <h6 class="phoenix-card-title">
+                        <i class="fas fa-clock-rotate-left text-primary"></i>
+                        {{ __('Aktivitas Handover Terkini') }}
+                    </h6>
+                    <small class="text-muted">{{ __('Log serah terima terakhir') }}</small>
                 </div>
+                <span class="badge-phoenix badge-phoenix-primary">{{ $recent_handovers->count() }} {{ __('Terkini') }}</span>
             </div>
-            <div class="card-footer bg-light border-0 p-2 text-center">
-                <a href="{{ route('barang.index') }}" class="text-decoration-none text-muted small">Lihat Semua Aset</a>
+            <div class="phoenix-card-body" style="max-height: 360px; overflow-y: auto;">
+                @forelse($recent_handovers as $log)
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="fw-bold text-dark" style="font-size: 0.85rem;">
+                            {{ $log->user ? $log->user->name : 'Gudang IT' }}
+                        </span>
+                        <span class="text-muted small font-monospace">
+                            {{ \Carbon\Carbon::parse($log->tanggal_serah_terima)->diffForHumans() }}
+                        </span>
+                    </div>
+                    <div class="text-secondary small mt-1">
+                        {{ __('Diserahterimakan aset:') }} <span class="fw-semibold text-dark">{{ $log->barang->nama_barang }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.7rem;">
+                            <i class="fas fa-location-dot me-1 text-primary"></i>{{ $log->lokasi }}
+                        </span>
+                        @if($log->no_surat)
+                            <a href="{{ route('handover.receipt', $log->no_surat) }}" target="_blank" class="badge-phoenix badge-phoenix-info text-decoration-none" style="font-size: 0.6875rem;">
+                                <i class="fas fa-file-lines"></i> {{ __('Surat Tanda Terima') }}
+                            </a>
+                        @endif
+                    </div>
+                </div>
+                @empty
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-clipboard-check fs-2 opacity-25 mb-2"></i>
+                    <p class="mb-0 small">{{ __('Belum ada aktivitas serah terima tercatat.') }}</p>
+                </div>
+                @endforelse
+            </div>
+            <div class="p-3 bg-light border-top text-center">
+                <a href="{{ route('handover.history') }}" class="text-decoration-none text-primary fw-bold small">
+                    {{ __('Buka Semua Riwayat Handover') }} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -189,48 +313,49 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Konfigurasi Area Chart (Smooth Line Chart) meniru "Sales Value"
         const ctx = document.getElementById('assetTrendChart').getContext('2d');
         
-        // Gradient Warna untuk Area Bawah Grafik
-        let gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientBlue.addColorStop(0, 'rgba(13, 110, 253, 0.5)'); // Biru transparan
-        gradientBlue.addColorStop(1, 'rgba(13, 110, 253, 0.05)');
+        // Phoenix Gradient Palette
+        let gradientPrimary = ctx.createLinearGradient(0, 0, 0, 280);
+        gradientPrimary.addColorStop(0, 'rgba(56, 116, 255, 0.35)');
+        gradientPrimary.addColorStop(1, 'rgba(56, 116, 255, 0.02)');
 
-        let gradientGreen = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientGreen.addColorStop(0, 'rgba(40, 167, 69, 0.5)'); // Hijau transparan
-        gradientGreen.addColorStop(1, 'rgba(40, 167, 69, 0.05)');
+        let gradientSuccess = ctx.createLinearGradient(0, 0, 0, 280);
+        gradientSuccess.addColorStop(0, 'rgba(37, 184, 101, 0.35)');
+        gradientSuccess.addColorStop(1, 'rgba(37, 184, 101, 0.02)');
 
-        new Chart(ctx, {
+        const trendChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($labels_grafik) !!},
                 datasets: [
                     {
-                        label: 'Total Aset Masuk',
+                        label: '{{ __("Aset Masuk") }}',
                         data: {!! json_encode($data_aset_masuk) !!},
-                        borderColor: '#0d6efd',
-                        backgroundColor: gradientBlue,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#0d6efd',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#0d6efd',
+                        borderColor: '#3874ff',
+                        backgroundColor: gradientPrimary,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#3874ff',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
                         fill: true,
-                        tension: 0.4 // Membuat garis melengkung halus (smooth)
+                        tension: 0.35
                     },
                     {
-                        label: 'Aset Selesai Diperbaiki',
+                        label: '{{ __("Aset Diperbaiki") }}',
                         data: {!! json_encode($data_aset_diperbaiki) !!},
-                        borderColor: '#28a745',
-                        backgroundColor: gradientGreen,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#28a745',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#28a745',
+                        borderColor: '#25b865',
+                        backgroundColor: gradientSuccess,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#25b865',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.35
                     }
                 ]
             },
@@ -240,20 +365,78 @@
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: { boxWidth: 10, usePointStyle: true }
+                        align: 'end',
+                        labels: {
+                            boxWidth: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: { family: "'Nunito Sans', sans-serif", size: 12, weight: 600 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#141824',
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { family: "'Nunito Sans', sans-serif", size: 12, weight: 700 },
+                        bodyFont: { family: "'Nunito Sans', sans-serif", size: 12 }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { borderDash: [2, 4], color: '#e9ecef' }
+                        grid: { borderDash: [3, 3], color: '#e3e6ed' },
+                        ticks: {
+                            precision: 0,
+                            font: { family: "'Nunito Sans', sans-serif", size: 11 },
+                            color: '#6e7891'
+                        }
                     },
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: "'Nunito Sans', sans-serif", size: 11 },
+                            color: '#6e7891'
+                        }
                     }
                 }
             }
         });
+
+        // Filter by Year & Month AJAX Handler
+        const yearSelect = document.getElementById('selectYearTrend');
+        const monthSelect = document.getElementById('selectMonthTrend');
+
+        function reloadTrendChart() {
+            const y = yearSelect ? yearSelect.value : '';
+            const m = monthSelect ? monthSelect.value : '';
+
+            fetch(`{{ route('dashboard') }}?year=${encodeURIComponent(y)}&month=${encodeURIComponent(m)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                trendChart.data.labels = data.labels;
+                trendChart.data.datasets[0].data = data.data_aset_masuk;
+                trendChart.data.datasets[1].data = data.data_aset_diperbaiki;
+                trendChart.update();
+
+                const elMasuk = document.getElementById('statTotalMasuk');
+                const elDiperbaiki = document.getElementById('statTotalDiperbaiki');
+                if (elMasuk) elMasuk.textContent = data.total_masuk;
+                if (elDiperbaiki) elDiperbaiki.textContent = data.total_diperbaiki;
+            })
+            .catch(err => console.error("Error loading trend chart data:", err));
+        }
+
+        if (yearSelect) {
+            yearSelect.addEventListener('change', reloadTrendChart);
+        }
+        if (monthSelect) {
+            monthSelect.addEventListener('change', reloadTrendChart);
+        }
     });
 </script>
 @endpush

@@ -10,7 +10,9 @@ class RiwayatAset extends Model
     use HasFactory;
 
     protected $fillable = [
-        'barang_id', 'user_id', 'lokasi', 'keterangan', 'tanggal_serah_terima'
+        'no_surat', 'barang_id', 'user_id', 'diserahkan_oleh', 
+        'penerima_nama', 'penerima_dept', 'penerima_jabatan',
+        'lokasi', 'keterangan', 'tanggal_serah_terima'
     ];
 
     public function barang() {
