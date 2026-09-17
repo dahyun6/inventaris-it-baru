@@ -33,44 +33,56 @@
                     
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Diserahkan Kepada (Pegawai)</label>
-                            <select name="user_id" class="form-select">
-                                <option value="">-- Kembalikan ke Gudang / IT --</option>
+                            <label class="form-label small fw-bold" for="handover_user_id">{{ __('Diserahkan Kepada (Pegawai)') }}</label>
+                            <select name="user_id" id="handover_user_id" class="form-select">
+                                <option value="" data-dept="" data-lokasi="">-- {{ __('Kembalikan ke Gudang / IT') }} --</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    <option value="{{ $user->id }}" data-dept="{{ $user->departemen?->nama_departemen ?? '' }}" data-lokasi="{{ $user->lokasi?->nama_lokasi ?? '' }}" data-name="{{ $user->name }}">
+                                        {{ $user->name }} {{ $user->departemen ? '('.$user->departemen->nama_departemen.')' : '' }}
+                                    </option>
                                 @endforeach
                             </select>
+                            <div id="handover_dept_preview" class="mt-1 small text-muted d-none">
+                                <i class="fas fa-building me-1 text-primary"></i> {{ __('Departemen') }}: <strong id="handover_dept_name" class="text-dark"></strong>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-danger">Tanggal Serah Terima *</label>
+                            <label class="form-label small fw-bold text-danger">{{ __('Tanggal Serah Terima') }} *</label>
                             <input type="date" name="tanggal_serah_terima" class="form-control" required value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-danger">Lokasi Baru *</label>
-                            <input type="text" name="lokasi" class="form-control" placeholder="Misal: Meja Budi, Gd. A Lt. 2..." required>
+                            <label class="form-label small fw-bold text-danger">{{ __('Lokasi Baru') }} *</label>
+                            <input type="text" name="lokasi" id="handover_lokasi" class="form-control" list="handoverLokasiList" placeholder="Misal: Meja Budi, Gd. A Lt. 2..." required>
+                            <datalist id="handoverLokasiList">
+                                @if(isset($lokasis))
+                                    @foreach($lokasis as $lok)
+                                        <option value="{{ $lok->nama_lokasi }}">
+                                    @endforeach
+                                @endif
+                            </datalist>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-danger">Ubah Status Barang Menjadi *</label>
+                            <label class="form-label small fw-bold text-danger">{{ __('Ubah Status Barang Menjadi') }} *</label>
                             <select name="status" class="form-select" required>
-                                <option value="Dipinjam" {{ $barang->status == 'Dipinjam' ? 'selected' : '' }}>Dipinjam (Digunakan)</option>
-                                <option value="Tersedia" {{ $barang->status == 'Tersedia' ? 'selected' : '' }}>Tersedia (Di Gudang IT)</option>
-                                <option value="Rusak" {{ $barang->status == 'Rusak' ? 'selected' : '' }}>Rusak (Dalam Perbaikan)</option>
+                                <option value="Dipinjam" {{ $barang->status == 'Dipinjam' ? 'selected' : '' }}>{{ __('Dipinjam (Digunakan)') }}</option>
+                                <option value="Tersedia" {{ $barang->status == 'Tersedia' ? 'selected' : '' }}>{{ __('Tersedia (Di Gudang IT)') }}</option>
+                                <option value="Rusak" {{ $barang->status == 'Rusak' ? 'selected' : '' }}>{{ __('Rusak (Dalam Perbaikan)') }}</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Keterangan / Catatan Kondisi</label>
+                        <label class="form-label small fw-bold">{{ __('Keterangan / Catatan Kondisi') }}</label>
                         <textarea name="keterangan" class="form-control" rows="3" placeholder="Misal: Pindah divisi, kelengkapan adaptor charger..."></textarea>
                     </div>
 
                     <div class="p-3 bg-light border-top -mx-4 -mb-4 mt-4 d-flex justify-content-between align-items-center" style="margin-left: -1.25rem; margin-right: -1.25rem; margin-bottom: -1.25rem; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-                        <a href="{{ route('barang.show', $barang->uuid) }}" class="btn btn-phoenix-secondary btn-sm">Batal</a>
+                        <a href="{{ route('barang.show', $barang->uuid) }}" class="btn btn-phoenix-secondary btn-sm">{{ __('Batal') }}</a>
                         <button type="submit" class="btn btn-phoenix-primary btn-sm px-4">
-                            <i class="fas fa-save me-1"></i> Simpan Handover
+                            <i class="fas fa-save me-1"></i> {{ __('Simpan Handover') }}
                         </button>
                     </div>
                 </form>
@@ -79,3 +91,33 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userSelect = document.getElementById('handover_user_id');
+        const deptPreview = document.getElementById('handover_dept_preview');
+        const deptName = document.getElementById('handover_dept_name');
+        const lokasiInput = document.getElementById('handover_lokasi');
+
+        if (userSelect) {
+            userSelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex];
+                const dept = selected ? selected.getAttribute('data-dept') : '';
+                const lokasi = selected ? selected.getAttribute('data-lokasi') : '';
+
+                if (dept && deptPreview && deptName) {
+                    deptName.textContent = dept;
+                    deptPreview.classList.remove('d-none');
+                } else if (deptPreview) {
+                    deptPreview.classList.add('d-none');
+                }
+
+                if (lokasi && lokasiInput) {
+                    lokasiInput.value = lokasi;
+                }
+            });
+        }
+    });
+</script>
+@endpush

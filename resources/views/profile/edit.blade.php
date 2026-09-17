@@ -25,15 +25,15 @@
                 <div class="position-relative d-inline-block mb-3">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=3874ff&color=fff&bold=true&size=128" 
                          alt="{{ $user->name }}" 
-                         class="rounded-circle shadow-sm" width="80" height="80">
+                         class="rounded-circle shadow-sm" width="80" height="80" style="object-fit: cover; aspect-ratio: 1 / 1;">
                     <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle p-2" title="Online"></span>
                 </div>
                 <h5 class="fw-bold text-dark mb-1">{{ $user->name }}</h5>
                 <p class="text-muted small mb-3">{{ $user->email }}</p>
 
                 <div class="d-inline-flex align-items-center gap-1 badge-phoenix badge-phoenix-primary mb-3">
-                    <i class="fas fa-shield-halved"></i>
-                    <span>{{ __('IT Asset Administrator') }}</span>
+                    <i class="fas fa-user-shield"></i>
+                    <span>{{ $user->getRoleDisplayName() }}</span>
                 </div>
 
                 <div class="border-top pt-3 text-start">
@@ -42,8 +42,20 @@
                         <span class="badge bg-success-subtle text-success fw-bold px-2 py-1" style="font-size: 0.725rem;">{{ __('Terverifikasi') }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small font-semibold">{{ __('Departemen') }}</span>
+                        <span class="badge bg-light text-primary border fw-bold px-2 py-1" style="font-size: 0.725rem;">
+                            {{ $user->departemen?->nama_departemen ?? '-' }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small font-semibold">{{ __('Lokasi Unit / Ruangan') }}</span>
+                        <span class="badge bg-light text-dark border fw-bold px-2 py-1" style="font-size: 0.725rem;">
+                            <i class="fas fa-location-dot me-1 text-primary"></i>{{ $user->lokasi?->nama_lokasi ?? '-' }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                         <span class="text-muted small font-semibold">{{ __('Role Akses') }}</span>
-                        <span class="fw-bold text-dark small">{{ __('Super Administrator') }}</span>
+                        <span class="fw-bold text-dark small">{{ $user->getRoleDisplayName() }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                         <span class="text-muted small font-semibold">{{ __('Bahasa Pilihan') }}</span>

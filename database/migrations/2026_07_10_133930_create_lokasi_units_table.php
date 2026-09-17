@@ -11,10 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lokasi_units', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('lokasi_units')) {
+            Schema::create('lokasi_units', function (Blueprint $table) {
+                $table->id();
+                $table->string('nama_lokasi')->unique();
+                $table->string('kode_lokasi')->nullable();
+                $table->text('keterangan')->nullable();
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('lokasi_units', function (Blueprint $table) {
+                if (!Schema::hasColumn('lokasi_units', 'nama_lokasi')) {
+                    $table->string('nama_lokasi')->unique()->after('id');
+                }
+                if (!Schema::hasColumn('lokasi_units', 'kode_lokasi')) {
+                    $table->string('kode_lokasi')->nullable()->after('nama_lokasi');
+                }
+                if (!Schema::hasColumn('lokasi_units', 'keterangan')) {
+                    $table->text('keterangan')->nullable()->after('kode_lokasi');
+                }
+            });
+        }
     }
 
     /**

@@ -2,48 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Vendor\StoreVendorRequest;
+use App\Http\Requests\Vendor\UpdateVendorRequest;
 use App\Models\Vendor;
-use Illuminate\Http\Request;
+use App\Services\VendorService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class VendorController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected VendorService $vendorService
+    ) {}
+
+    public function index(): View
     {
-        $vendors = Vendor::withCount('barangs')->orderBy('nama_vendor')->get();
+        $vendors = $this->vendorService->getAllWithCount();
+
         return view('vendor.index', compact('vendors'));
     }
 
-    public function store(Request $request)
+    public function store(StoreVendorRequest $request): RedirectResponse
     {
-        $request->validate([
-            'nama_vendor' => 'required|string|unique:vendors,nama_vendor|max:255',
-            'alamat'      => 'nullable|string',
-            'telepon'     => 'nullable|string|max:50',
-            'email'       => 'nullable|email|max:100',
-        ]);
-
-        Vendor::create($request->all());
+        $this->vendorService->create($request->validated());
 
         return redirect()->route('vendor.index')->with('success', __('Vendor baru berhasil ditambahkan!'));
     }
 
-    public function update(Request $request, Vendor $vendor)
+    public function update(UpdateVendorRequest $request, Vendor $vendor): RedirectResponse
     {
-        $request->validate([
-            'nama_vendor' => 'required|string|max:255|unique:vendors,nama_vendor,' . $vendor->id,
-            'alamat'      => 'nullable|string',
-            'telepon'     => 'nullable|string|max:50',
-            'email'       => 'nullable|email|max:100',
-        ]);
-
-        $vendor->update($request->all());
+        $this->vendorService->update($vendor, $request->validated());
 
         return redirect()->route('vendor.index')->with('success', __('Data vendor berhasil diperbarui!'));
     }
 
-    public function destroy(Vendor $vendor)
+    public function destroy(Vendor $vendor): RedirectResponse
     {
-        $vendor->delete();
+        $this->vendorService->delete($vendor);
 
         return redirect()->route('vendor.index')->with('success', __('Vendor berhasil dihapus!'));
     }

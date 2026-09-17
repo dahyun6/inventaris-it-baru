@@ -3,7 +3,14 @@
 @section('title', __('Master Data Inventaris IT'))
 
 @section('header_actions')
-<div class="d-flex gap-2">
+@if(!Auth::user()?->isStaff())
+<div class="d-flex flex-wrap gap-2">
+    <a href="{{ route('barang.barcode.batch') }}" target="_blank" class="btn btn-phoenix-secondary btn-sm" title="{{ __('Cetak Label QR Code Seluruh Aset / Batch') }}">
+        <i class="fas fa-qrcode text-primary me-1"></i> {{ __('Cetak QR Code') }}
+    </a>
+    <a href="{{ route('barang.template') }}" class="btn btn-phoenix-secondary btn-sm" title="{{ __('Unduh file mentahan / format template Excel') }}">
+        <i class="fas fa-file-arrow-down text-primary me-1"></i> {{ __('Template Excel') }}
+    </a>
     <button class="btn btn-phoenix-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalImport">
         <i class="fas fa-file-excel text-success me-1"></i> {{ __('Import Excel') }}
     </button>
@@ -11,6 +18,7 @@
         <i class="fas fa-plus me-1"></i> {{ __('Entry Aset Baru') }}
     </button>
 </div>
+@endif
 @endsection
 
 @section('content')
@@ -268,6 +276,10 @@
                                 <a href="{{ route('barang.show', $item->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail & History') }}">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
+                                <a href="{{ route('barang.barcode', $item->uuid) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak Label QR Code Aset') }}">
+                                    <i class="fas fa-qrcode text-secondary"></i>
+                                </a>
+                                @if(!Auth::user()?->isStaff())
                                 <button type="button" class="btn btn-phoenix-secondary py-1 px-2 btn-edit-barang" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalEditBarang" 
@@ -296,6 +308,7 @@
                                         <i class="fas fa-trash text-danger"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -306,6 +319,7 @@
     </div>
 </div>
 
+@if(!Auth::user()?->isStaff())
 <!-- MODAL EDIT DATA ASET -->
 <div class="modal fade modal-phoenix" id="modalEditBarang" tabindex="-1" aria-labelledby="modalEditBarangLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -365,7 +379,52 @@
                     <div class="row g-3 mb-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold" for="edit_pengguna">{{ __('Nama Pengguna') }}</label>
-                            <input type="text" id="edit_pengguna" name="pengguna" class="form-control">
+                            <div class="input-group">
+                                <input type="text" id="edit_pengguna" name="pengguna" class="form-control" placeholder="Nama karyawan / pemakai...">
+                                <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="{{ __('Pilih User') }}">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span>{{ __('Pilih User') }}</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="width: 320px; max-width: 90vw;">
+                                    <div class="p-1 mb-2 border-bottom pb-2">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted border-end-0"><i class="fas fa-search" style="font-size: 0.75rem;"></i></span>
+                                            <input type="text" class="form-control border-start-0 user-search-input" placeholder="{{ __('Cari nama / email...') }}" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="user-list-scroll" style="max-height: 200px; overflow-y: auto;">
+                                        <ul class="list-unstyled mb-0 user-items-list">
+                                            @foreach($users as $u)
+                                                <li class="user-search-item mb-1">
+                                                    <a class="dropdown-item py-1.5 px-2 rounded-2 btn-select-edit-user text-wrap" href="javascript:void(0)" 
+                                                        data-name="{{ $u->name }}"
+                                                        data-dept="{{ $u->departemen?->nama_departemen ?? '' }}"
+                                                        data-lokasi="{{ $u->lokasi?->nama_lokasi ?? '' }}"
+                                                        data-search="{{ strtolower($u->name . ' ' . $u->email . ' ' . ($u->departemen?->nama_departemen ?? '') . ' ' . ($u->lokasi?->nama_lokasi ?? '')) }}">
+                                                        <div class="fw-bold text-dark lh-sm" style="font-size: 0.8125rem;">{{ $u->name }}</div>
+                                                        <div class="text-muted small lh-sm d-flex align-items-center gap-1 mt-0.5 flex-wrap" style="font-size: 0.725rem;">
+                                                            @if($u->departemen)
+                                                                <span class="badge bg-light text-primary border" style="font-size: 0.675rem;">
+                                                                    <i class="fas fa-building me-1 opacity-75"></i>{{ $u->departemen->nama_departemen }}
+                                                                </span>
+                                                            @endif
+                                                            @if($u->lokasi)
+                                                                <span class="badge bg-light text-secondary border" style="font-size: 0.675rem;">
+                                                                    <i class="fas fa-location-dot me-1 text-primary opacity-75"></i>{{ $u->lokasi->nama_lokasi }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="text-truncate"><i class="fas fa-envelope-open-text me-1 opacity-50"></i>{{ $u->email }}</span>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                        <div class="user-no-result text-center text-muted py-3 small d-none">
+                                            <i class="fas fa-user-slash me-1 opacity-50"></i> {{ __('User tidak ditemukan') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold" for="edit_position_user">{{ __('Jabatan (Position User)') }}</label>
@@ -375,11 +434,16 @@
                     <div class="row g-3 mb-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold" for="edit_dept">{{ __('Departemen') }}</label>
-                            <input type="text" id="edit_dept" name="dept" class="form-control">
+                            <input type="text" id="edit_dept" name="dept" class="form-control bg-light" readonly style="cursor: not-allowed;" placeholder="{{ __('Otomatis terisi dari User...') }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold" for="edit_unit_loc">{{ __('Lokasi Unit (Unit Loc)') }}</label>
-                            <input type="text" id="edit_unit_loc" name="unit_loc" class="form-control">
+                            <select id="edit_unit_loc" name="unit_loc" class="form-select">
+                                <option value="">-- {{ __('Pilih Lokasi Unit') }} --</option>
+                                @foreach($lokasis as $lok)
+                                    <option value="{{ $lok->nama_lokasi }}">{{ $lok->nama_lokasi }} {{ $lok->kode_lokasi ? '('.$lok->kode_lokasi.')' : '' }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
@@ -418,15 +482,42 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title fw-bold"><i class="fas fa-file-excel text-success me-2"></i>{{ __('Import Excel') }}</h6>
+                <h6 class="modal-title fw-bold"><i class="fas fa-file-excel text-success me-2"></i>{{ __('Import Data Aset dari Excel') }}</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('barang.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
+                    <!-- File Mentahan / Template Download Card -->
+                    <div class="p-3 mb-3 rounded-3" style="background-color: var(--phoenix-primary-subtle); border: 1px dashed var(--phoenix-primary-border);">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="small fw-bold text-dark"><i class="fas fa-file-arrow-down text-primary me-1"></i> {{ __('File Mentahan / Format Template') }}</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace" style="font-size: 0.65rem;">.XLSX</span>
+                        </div>
+                        <p class="text-muted small mb-2" style="font-size: 0.775rem; line-height: 1.4;">
+                            {{ __('Gunakan file template resmi agar susunan kolom sesuai dengan pembaca database.') }}
+                        </p>
+                        <a href="{{ route('barang.template') }}" class="btn btn-phoenix-primary btn-sm w-100 fw-bold py-1.5" style="font-size: 0.8125rem;">
+                            <i class="fas fa-download me-1 text-white"></i> {{ __('Download File Mentahan (.xlsx)') }}
+                        </a>
+                    </div>
+
+                    <!-- Guidelines -->
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">{{ __('Pilih File (.xlsx / .csv)') }}</label>
-                        <input type="file" name="file_excel" class="form-control" accept=".xlsx, .xls, .csv" required>
+                        <div class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                            <i class="fas fa-circle-info text-info me-1"></i> {{ __('Petunjuk Pengisian File:') }}
+                        </div>
+                        <ul class="text-muted small ps-3 mb-0" style="font-size: 0.75rem; line-height: 1.5;">
+                            <li>Kolom <strong>model</strong> wajib diisi (misal: <em>ThinkPad T14</em>).</li>
+                            <li>Kolom <strong>jenis</strong> akan otomatis masuk ke Kategori (misal: <em>Laptop</em>).</li>
+                            <li>Format <strong>buy_date</strong> gunakan format tanggal standar (contoh: <code>2024-05-20</code>).</li>
+                            <li>Kolom <strong>no_aset_local</strong> boleh dikosongkan agar dibuat otomatis oleh sistem.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold" for="file_excel_input">{{ __('Pilih File Excel yang Sudah Diisi') }} <span class="text-danger">*</span></label>
+                        <input type="file" id="file_excel_input" name="file_excel" class="form-control" accept=".xlsx, .xls, .csv" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -498,7 +589,52 @@
                     <div class="row g-3 mb-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">{{ __('Nama Pengguna') }}</label>
-                            <input type="text" name="pengguna" class="form-control">
+                            <div class="input-group">
+                                <input type="text" name="pengguna" id="tambah_pengguna" class="form-control" placeholder="Nama karyawan / pemakai...">
+                                <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="{{ __('Pilih User') }}">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span>{{ __('Pilih User') }}</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="width: 320px; max-width: 90vw;">
+                                    <div class="p-1 mb-2 border-bottom pb-2">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted border-end-0"><i class="fas fa-search" style="font-size: 0.75rem;"></i></span>
+                                            <input type="text" class="form-control border-start-0 user-search-input" placeholder="{{ __('Cari nama / email...') }}" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="user-list-scroll" style="max-height: 200px; overflow-y: auto;">
+                                        <ul class="list-unstyled mb-0 user-items-list">
+                                            @foreach($users as $u)
+                                                <li class="user-search-item mb-1">
+                                                    <a class="dropdown-item py-1.5 px-2 rounded-2 btn-select-tambah-user text-wrap" href="javascript:void(0)" 
+                                                        data-name="{{ $u->name }}"
+                                                        data-dept="{{ $u->departemen?->nama_departemen ?? '' }}"
+                                                        data-lokasi="{{ $u->lokasi?->nama_lokasi ?? '' }}"
+                                                        data-search="{{ strtolower($u->name . ' ' . $u->email . ' ' . ($u->departemen?->nama_departemen ?? '') . ' ' . ($u->lokasi?->nama_lokasi ?? '')) }}">
+                                                        <div class="fw-bold text-dark lh-sm" style="font-size: 0.8125rem;">{{ $u->name }}</div>
+                                                        <div class="text-muted small lh-sm d-flex align-items-center gap-1 mt-0.5 flex-wrap" style="font-size: 0.725rem;">
+                                                            @if($u->departemen)
+                                                                <span class="badge bg-light text-primary border" style="font-size: 0.675rem;">
+                                                                    <i class="fas fa-building me-1 opacity-75"></i>{{ $u->departemen->nama_departemen }}
+                                                                </span>
+                                                            @endif
+                                                            @if($u->lokasi)
+                                                                <span class="badge bg-light text-secondary border" style="font-size: 0.675rem;">
+                                                                    <i class="fas fa-location-dot me-1 text-primary opacity-75"></i>{{ $u->lokasi->nama_lokasi }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="text-truncate"><i class="fas fa-envelope-open-text me-1 opacity-50"></i>{{ $u->email }}</span>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                        <div class="user-no-result text-center text-muted py-3 small d-none">
+                                            <i class="fas fa-user-slash me-1 opacity-50"></i> {{ __('User tidak ditemukan') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">{{ __('Jabatan (Position User)') }}</label>
@@ -508,11 +644,16 @@
                     <div class="row g-3 mb-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">{{ __('Departemen') }}</label>
-                            <input type="text" name="dept" class="form-control">
+                            <input type="text" id="tambah_dept" name="dept" class="form-control bg-light" readonly style="cursor: not-allowed;" placeholder="{{ __('Otomatis terisi dari User...') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">{{ __('Lokasi Unit (Unit Loc)') }}</label>
-                            <input type="text" name="unit_loc" class="form-control">
+                            <label class="form-label small fw-bold" for="tambah_unit_loc">{{ __('Lokasi Unit (Unit Loc)') }}</label>
+                            <select id="tambah_unit_loc" name="unit_loc" class="form-select">
+                                <option value="">-- {{ __('Pilih Lokasi Unit') }} --</option>
+                                @foreach($lokasis as $lok)
+                                    <option value="{{ $lok->nama_lokasi }}">{{ $lok->nama_lokasi }} {{ $lok->kode_lokasi ? '('.$lok->kode_lokasi.')' : '' }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
@@ -532,6 +673,26 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-section-divider">4. {{ __('Jadwal Preventive Maintenance') }}</div>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">{{ __('Interval Servis Berkala') }}</label>
+                            <select name="interval_maintenance" class="form-select">
+                                <option value="0">-- {{ __('Tanpa Jadwal Rutin') }} --</option>
+                                <option value="3">{{ __('Setiap 3 Bulan (Kuartalan)') }}</option>
+                                <option value="6">{{ __('Setiap 6 Bulan (Semester)') }}</option>
+                                <option value="12">{{ __('Setiap 12 Bulan (Tahunan)') }}</option>
+                                <option value="24">{{ __('Setiap 24 Bulan (2 Tahun)') }}</option>
+                            </select>
+                            <div class="form-text" style="font-size: 0.725rem;">{{ __('Sistem otomatis menghitung jadwal servis setelah maintenance.') }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">{{ __('Jadwal Maintenance Pertama / Berikutnya') }}</label>
+                            <input type="date" name="tgl_maintenance_berikutnya" class="form-control">
+                            <div class="form-text" style="font-size: 0.725rem;">{{ __('Bisa ditentukan manual atau terisi otomatis dari interval.') }}</div>
+                        </div>
+                    </div>
+
                     <div class="mb-2">
                         <label class="form-label small fw-bold">{{ __('Catatan Tambahan') }}</label>
                         <textarea name="note" class="form-control" rows="2"></textarea>
@@ -545,6 +706,7 @@
         </div>
     </div>
 </div>
+@endif
 @endsection
 
 @push('scripts')
@@ -570,7 +732,14 @@
             $('#edit_pengguna').val(btn.data('pengguna') || '');
             $('#edit_position_user').val(btn.data('position-user') || '');
             $('#edit_dept').val(btn.data('dept') || '');
-            $('#edit_unit_loc').val(btn.data('unit-loc') || '');
+            
+            const unitLocVal = btn.data('unit-loc') || '';
+            const editUnitLocSelect = $('#edit_unit_loc');
+            if (unitLocVal && editUnitLocSelect.find(`option[value="${unitLocVal}"]`).length === 0) {
+                editUnitLocSelect.append(new Option(unitLocVal, unitLocVal, true, true));
+            }
+            editUnitLocSelect.val(unitLocVal);
+
             $('#edit_buy_date').val(btn.data('buy-date') || '');
             
             const vendorVal = btn.data('vendor') || '';
@@ -581,6 +750,84 @@
             editVendorSelect.val(vendorVal);
 
             $('#edit_note').val(btn.data('note') || '');
+        });
+
+        // Live Search Filtering for User Picker Dropdown
+        $(document).on('input', '.user-search-input', function() {
+            const query = $(this).val().toLowerCase().trim();
+            const dropdownMenu = $(this).closest('.dropdown-menu');
+            const items = dropdownMenu.find('.user-search-item');
+            const noResult = dropdownMenu.find('.user-no-result');
+            let matched = 0;
+
+            items.each(function() {
+                const searchStr = $(this).find('a').data('search') || '';
+                if (searchStr.includes(query)) {
+                    $(this).show();
+                    matched++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if (matched === 0) {
+                noResult.removeClass('d-none');
+            } else {
+                noResult.addClass('d-none');
+            }
+        });
+
+        // Auto-focus search input and reset filter when dropdown is opened
+        $(document).on('shown.bs.dropdown', function(e) {
+            const dropdownMenu = $(e.target).find('.dropdown-menu');
+            if (dropdownMenu.length) {
+                const searchInput = dropdownMenu.find('.user-search-input');
+                if (searchInput.length) {
+                    searchInput.val('').trigger('input');
+                    setTimeout(() => searchInput.focus(), 60);
+                }
+            }
+        });
+
+        // Helper to close dropdown after selecting user
+        function closeUserDropdown(element) {
+            const dropdownToggle = $(element).closest('.input-group').find('[data-bs-toggle="dropdown"]')[0];
+            if (dropdownToggle) {
+                const instance = bootstrap.Dropdown.getInstance(dropdownToggle) || new bootstrap.Dropdown(dropdownToggle);
+                if (instance) instance.hide();
+            }
+        }
+
+        // User Picker Selection for Tambah & Edit
+        $(document).on('click', '.btn-select-tambah-user', function(e) {
+            e.preventDefault();
+            const name = $(this).data('name') || '';
+            const dept = $(this).data('dept') || '';
+            const lokasi = $(this).data('lokasi') || '';
+            $('#tambah_pengguna').val(name);
+            $('#tambah_dept').val(dept);
+            if (lokasi) {
+                if ($('#tambah_unit_loc').find(`option[value="${lokasi}"]`).length === 0) {
+                    $('#tambah_unit_loc').append(new Option(lokasi, lokasi, true, true));
+                }
+                $('#tambah_unit_loc').val(lokasi);
+            }
+            closeUserDropdown(this);
+        });
+        $(document).on('click', '.btn-select-edit-user', function(e) {
+            e.preventDefault();
+            const name = $(this).data('name') || '';
+            const dept = $(this).data('dept') || '';
+            const lokasi = $(this).data('lokasi') || '';
+            $('#edit_pengguna').val(name);
+            $('#edit_dept').val(dept);
+            if (lokasi) {
+                if ($('#edit_unit_loc').find(`option[value="${lokasi}"]`).length === 0) {
+                    $('#edit_unit_loc').append(new Option(lokasi, lokasi, true, true));
+                }
+                $('#edit_unit_loc').val(lokasi);
+            }
+            closeUserDropdown(this);
         });
 
         // AJAX generation of asset code

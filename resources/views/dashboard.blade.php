@@ -307,6 +307,137 @@
     </div>
 </div>
 
+<!-- PREVENTIVE MAINTENANCE & AUDIT ACTIVITY ROW -->
+<div class="row g-4 mt-1 mb-2">
+    <!-- Upcoming Preventive Maintenance Widget -->
+    <div class="col-lg-6">
+        <div class="phoenix-card h-100">
+            <div class="phoenix-card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="phoenix-card-title">
+                        <i class="fas fa-calendar-check text-warning"></i>
+                        {{ __('Preventive Maintenance Mendatang') }}
+                    </h6>
+                    <small class="text-muted">{{ __('Aset yang memerlukan servis/pemeliharaan berkala') }}</small>
+                </div>
+                @if(isset($preventive_overdue_count) && $preventive_overdue_count > 0)
+                    <span class="badge bg-danger-subtle text-danger fw-bold font-monospace" style="font-size: 0.75rem;">
+                        <i class="fas fa-circle-exclamation me-1"></i>{{ $preventive_overdue_count }} Overdue
+                    </span>
+                @else
+                    <span class="badge-phoenix badge-phoenix-warning">{{ count($upcoming_preventives ?? []) }} {{ __('Terjadwal') }}</span>
+                @endif
+            </div>
+            <div class="phoenix-card-body p-0">
+                @if(isset($upcoming_preventives) && $upcoming_preventives->isNotEmpty())
+                    <div class="list-group list-group-flush">
+                        @foreach($upcoming_preventives as $pItem)
+                        <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom">
+                            <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center {{ $pItem->isMaintenanceOverdue() ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning' }} flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                                    <i class="fas {{ $pItem->isMaintenanceOverdue() ? 'fa-triangle-exclamation' : 'fa-clock' }}"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="{{ route('barang.show', $pItem->uuid) }}" class="fw-bold text-dark font-monospace text-decoration-none text-truncate" style="font-size: 0.85rem;">
+                                            {{ $pItem->no_aset_local }}
+                                        </a>
+                                        <span class="badge bg-light text-secondary border" style="font-size: 0.6875rem;">
+                                            {{ $pItem->category->nama_kategori ?? 'Aset' }}
+                                        </span>
+                                    </div>
+                                    <div class="text-muted small text-truncate" style="font-size: 0.775rem;">
+                                        {{ $pItem->nama_barang ?? $pItem->model }} &bull; <span class="text-dark">{{ $pItem->user->name ?? ($pItem->pengguna ?? 'Belum ada pengguna') }}</span>
+                                    </div>
+                                    <div class="small mt-0.5" style="font-size: 0.725rem;">
+                                        @if($pItem->isMaintenanceOverdue())
+                                            <span class="text-danger fw-bold"><i class="fas fa-circle-exclamation me-1"></i>{{ __('Jatuh tempo:') }} {{ $pItem->tgl_maintenance_berikutnya?->format('d M Y') }}</span>
+                                        @else
+                                            <span class="text-secondary"><i class="fas fa-calendar-day me-1 text-warning"></i>{{ __('Jadwal:') }} {{ $pItem->tgl_maintenance_berikutnya?->format('d M Y') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('maintenance.create', ['barang_id' => $pItem->id]) }}" class="btn btn-outline-primary btn-sm px-2.5 py-1 text-nowrap flex-shrink-0" style="font-size: 0.775rem;">
+                                <i class="fas fa-screwdriver-wrench me-1"></i>{{ __('Servis') }}
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center text-muted py-4 px-3">
+                        <i class="fas fa-circle-check fs-2 text-success opacity-50 mb-2"></i>
+                        <p class="mb-0 small fw-semibold text-dark">{{ __('Semua Aset Terpelihara Baik') }}</p>
+                        <small class="text-muted">{{ __('Tidak ada jadwal maintenance yang mendekati batas waktu.') }}</small>
+                    </div>
+                @endif
+            </div>
+            <div class="p-3 bg-light border-top text-center">
+                <a href="{{ route('maintenance.index') }}" class="text-decoration-none text-primary fw-bold small">
+                    {{ __('Buka Modul Maintenance Aset') }} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Audit Activity Log Widget -->
+    <div class="col-lg-6">
+        <div class="phoenix-card h-100">
+            <div class="phoenix-card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="phoenix-card-title">
+                        <i class="fas fa-clock-rotate-left text-primary"></i>
+                        {{ __('Audit Activity Log Terkini') }}
+                    </h6>
+                    <small class="text-muted">{{ __('Rekam jejak aktivitas & transparansi sistem') }}</small>
+                </div>
+                <a href="{{ route('activity_logs.index') }}" class="badge-phoenix badge-phoenix-primary text-decoration-none">
+                    {{ __('Semua Log') }}
+                </a>
+            </div>
+            <div class="phoenix-card-body p-0">
+                @if(isset($recent_activities) && $recent_activities->isNotEmpty())
+                    <div class="list-group list-group-flush">
+                        @foreach($recent_activities as $act)
+                        <div class="list-group-item p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <span class="badge {{ $act->getActionBadgeClass() }} me-1 font-monospace" style="font-size: 0.65rem;">
+                                        {{ $act->action }}
+                                    </span>
+                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.65rem;">
+                                        {{ $act->module }}
+                                    </span>
+                                    <span class="fw-bold text-dark ms-1" style="font-size: 0.825rem;">
+                                        {{ $act->user_name }}
+                                    </span>
+                                </div>
+                                <small class="text-muted font-monospace text-nowrap" style="font-size: 0.7rem;">
+                                    {{ $act->created_at->diffForHumans() }}
+                                </small>
+                            </div>
+                            <div class="text-secondary small mt-1 text-truncate" style="font-size: 0.775rem;">
+                                {{ $act->description }}
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center text-muted py-4 px-3">
+                        <i class="fas fa-list-check fs-2 opacity-25 mb-2"></i>
+                        <p class="mb-0 small">{{ __('Belum ada riwayat aktivitas sistem tercatat.') }}</p>
+                    </div>
+                @endif
+            </div>
+            <div class="p-3 bg-light border-top text-center">
+                <a href="{{ route('activity_logs.index') }}" class="text-decoration-none text-primary fw-bold small">
+                    {{ __('Lihat Log Aktivitas Lengkap') }} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')

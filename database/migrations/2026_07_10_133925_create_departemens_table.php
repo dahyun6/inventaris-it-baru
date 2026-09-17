@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departemens', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('departemens')) {
+            Schema::create('departemens', function (Blueprint $table) {
+                $table->id();
+                $table->string('nama_departemen')->unique();
+                $table->timestamps();
+            });
+        } elseif (!Schema::hasColumn('departemens', 'nama_departemen')) {
+            Schema::table('departemens', function (Blueprint $table) {
+                $table->string('nama_departemen')->unique()->after('id');
+            });
+        }
     }
 
     /**

@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surat Tanda Terima Aset - {{ $decodedNoSurat }}</title>
-    <!-- Google Fonts: Nunito Sans -->
+    <!-- Google Fonts: Nunito Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400..800;1,6..12,400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400..800;1,6..12,400..800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
         :root {
+            --phoenix-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             --phoenix-primary: #3874ff;
             --phoenix-body-bg: #f5f7fa;
             --phoenix-border-color: #e3e6ed;
@@ -26,6 +27,12 @@
             line-height: 1.5;
             margin: 0;
             padding: 0;
+        }
+
+        .font-monospace, code, .doc-number {
+            font-family: var(--phoenix-font-mono) !important;
+            font-feature-settings: "zero" 1, "tnum" 1;
+            letter-spacing: -0.015em;
         }
 
         .screen-toolbar {
@@ -291,7 +298,6 @@
     <div class="doc-header d-flex justify-content-between align-items-center">
         <div>
             <div class="company-title"><i class="fas fa-boxes-stacked text-primary me-2 no-print"></i>SBL IT ASSETS MANAGEMENT</div>
-            <div class="company-subtitle">Divisi Teknologi Informasi & Infrastruktur Perangkat Kerja</div>
         </div>
         <div class="text-end">
             <div class="badge bg-dark text-white px-2 py-1" style="font-size: 11px;">OFFICIAL RECORD</div>

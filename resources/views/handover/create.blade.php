@@ -94,11 +94,13 @@
                     <div class="form-section-divider">2. {{ __('Data Penerima (Recipient)') }}</div>
 
                     <div class="mb-3">
-                        <label class="form-label">Pilih dari User Terdaftar (Auto-fill)</label>
+                        <label class="form-label">{{ __('Pilih dari User Terdaftar (Auto-fill)') }}</label>
                         <select id="selectQuickUser" class="form-select">
-                            <option value="">-- {{ __('Pilih') }} --</option>
+                            <option value="">-- {{ __('Pilih User') }} --</option>
                             @foreach($users as $u)
-                                <option value="{{ $u->name }}" data-email="{{ $u->email }}">{{ $u->name }} ({{ $u->email }})</option>
+                                <option value="{{ $u->name }}" data-email="{{ $u->email }}" data-dept="{{ $u->departemen?->nama_departemen ?? '' }}" data-lokasi="{{ $u->lokasi?->nama_lokasi ?? '' }}">
+                                    {{ $u->name }} ({{ $u->departemen?->nama_departemen ? $u->departemen->nama_departemen . ' - ' : '' }}{{ $u->email }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -111,7 +113,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Departemen / Divisi') }}</label>
-                            <input type="text" name="penerima_dept" id="penerima_dept" class="form-control" value="{{ old('penerima_dept') }}" placeholder="Contoh: Marketing">
+                            <input type="text" name="penerima_dept" id="penerima_dept" class="form-control bg-light" value="{{ old('penerima_dept') }}" readonly style="cursor: not-allowed;" placeholder="{{ __('Otomatis terisi dari User...') }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Jabatan (Position)') }}</label>
@@ -121,7 +123,14 @@
 
                     <div class="mb-3">
                         <label class="form-label text-danger">{{ __('Lokasi Penempatan Unit') }} *</label>
-                        <input type="text" name="lokasi" id="lokasi" class="form-control" value="{{ old('lokasi') }}" placeholder="Contoh: Gd. A Lt. 2 / Meja 14" required>
+                        <input type="text" name="lokasi" id="lokasi" class="form-control" list="lokasiOptions" value="{{ old('lokasi') }}" placeholder="Contoh: Gd. A Lt. 2 / Meja 14" required>
+                        <datalist id="lokasiOptions">
+                            @if(isset($lokasis))
+                                @foreach($lokasis as $lok)
+                                    <option value="{{ $lok->nama_lokasi }}">
+                                @endforeach
+                            @endif
+                        </datalist>
                     </div>
 
                     <div class="form-section-divider">3. {{ __('Catatan & Kelengkapan') }}</div>
@@ -222,6 +231,17 @@
             quickUserSelect.addEventListener('change', function() {
                 if (this.value) {
                     penerimaInput.value = this.value;
+                    const selectedOpt = this.options[this.selectedIndex];
+                    const dept = selectedOpt ? selectedOpt.getAttribute('data-dept') : '';
+                    const deptInput = document.getElementById('penerima_dept');
+                    if (dept && deptInput) {
+                        deptInput.value = dept;
+                    }
+                    const lokasi = selectedOpt ? selectedOpt.getAttribute('data-lokasi') : '';
+                    const lokasiInput = document.getElementById('lokasi');
+                    if (lokasi && lokasiInput) {
+                        lokasiInput.value = lokasi;
+                    }
                 }
             });
         }
@@ -243,11 +263,11 @@
 
             if (count > 0) {
                 countBadge.className = 'badge-phoenix badge-phoenix-success';
-                summaryText.textContent = count + ' devices selected.';
+                summaryText.textContent = count + " {{ __('perangkat dipilih.') }}";
                 submitBtn.disabled = false;
             } else {
                 countBadge.className = 'badge-phoenix badge-phoenix-primary';
-                summaryText.textContent = 'Select at least 1 device to proceed.';
+                summaryText.textContent = "{{ __('Pilih minimal 1 aset untuk melanjutkan.') }}";
                 submitBtn.disabled = true;
             }
 

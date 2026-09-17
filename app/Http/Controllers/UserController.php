@@ -2,86 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Departemen;
+use App\Models\LokasiUnit;
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use App\Services\UserService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected UserService $userService
+    ) {}
+
+    public function index(): View
     {
-        // Mengambil data user terbaru, 10 data per halaman
-        $users = User::latest()->get();
-        return view('admin.user.index', compact('users'));
+        $users = $this->userService->getAll();
+        $roles = Role::orderBy('id')->get();
+        $departemens = Departemen::orderBy('nama_departemen')->get();
+        $lokasis = LokasiUnit::orderBy('nama_lokasi')->get();
+
+        return view('admin.user.index', compact('users', 'roles', 'departemens', 'lokasis'));
     }
 
-    public function create()
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        // Mengarahkan ke halaman form tambah user
-        return view('admin.users.create');
+        $this->userService->create($request->validated());
+
+        return redirect()->route('users.index')->with('success', __('User berhasil ditambahkan!'));
     }
 
-    public function store(Request $request)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        // 1. Validasi input dari form
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $this->userService->update($user, $request->validated());
 
-        // 2. Simpan ke database
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // Password wajib di-hash
-        ]);
-
-        // 3. Kembali ke halaman index dengan pesan sukses
-        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan!');
+        return redirect()->route('users.index')->with('success', __('Data user berhasil diperbarui!'));
     }
 
-    // Fungsi untuk memproses update data user
-    // Fungsi untuk memproses update data user
-    public function update(Request $request, $id)
+    public function destroy(User $user): RedirectResponse
     {
-        // 1. Validasi input (Tambahkan validasi password nullable)
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()], // 'nullable' berarti boleh dikosongkan
-        ]);
-
-        // 2. Cari data user berdasarkan ID
-        $user = User::findOrFail($id);
-
-        // 3. Siapkan data dasar yang akan diupdate (Nama dan Email)
-        $dataToUpdate = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        // 4. Cek apakah admin mengisi kolom password. Jika ya, enkripsi dan tambahkan!
-        if ($request->filled('password')) {
-            $dataToUpdate['password'] = Hash::make($request->password);
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')->with('error', __('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif.'));
         }
 
-        // 5. Eksekusi update
-        $user->update($dataToUpdate);
+        $this->userService->delete($user);
 
-        // 6. Kembali ke halaman index dengan pesan sukses
-        return redirect()->route('users.index')->with('success', 'Data user berhasil diperbarui!');
-    }
-
-    // Fungsi untuk menghapus data user
-    public function destroy($id)
-    {
-        // Cari data user berdasarkan ID lalu hapus
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        // Kembali ke halaman index dengan pesan sukses
-        return redirect()->route('users.index')->with('success', 'Data user berhasil dihapus!');
+        return redirect()->route('users.index')->with('success', __('Data user berhasil dihapus!'));
     }
 }

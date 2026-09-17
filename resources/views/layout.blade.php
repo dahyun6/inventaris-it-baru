@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SBL IT Assets') - Phoenix IT Inventory</title>
+    <title>@yield('title', 'SBL IT Assets')</title>
 
-    <!-- Google Fonts: Nunito Sans & Inter -->
+    <!-- Google Fonts: Nunito Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5.3 & FontAwesome 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,6 +18,8 @@
     <style>
         :root {
             --phoenix-font-sans: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --phoenix-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --bs-font-monospace: var(--phoenix-font-mono);
             --phoenix-primary: #3874ff;
             --phoenix-primary-rgb: 56, 116, 255;
             --phoenix-primary-hover: #2563eb;
@@ -53,6 +55,12 @@
             line-height: 1.5;
             overflow-x: hidden;
             letter-spacing: -0.01em;
+        }
+
+        .font-monospace, code, kbd, samp, pre, .font-mono {
+            font-family: var(--phoenix-font-mono) !important;
+            font-feature-settings: "zero" 1, "tnum" 1;
+            letter-spacing: -0.015em;
         }
 
         /* -------------------------------------------------------------
@@ -271,21 +279,36 @@
         }
 
         .user-avatar {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            min-height: 32px;
+            flex-shrink: 0;
+            aspect-ratio: 1 / 1;
             border-radius: 50%;
             object-fit: cover;
+            display: block;
             border: 1.5px solid var(--phoenix-primary-subtle);
         }
 
+        .phoenix-dropdown-menu,
         .phoenix-user-dropdown-menu {
             border-radius: 12px !important;
             border: 1px solid var(--phoenix-border-color) !important;
             box-shadow: 0 10px 30px -5px rgba(20, 24, 36, 0.12), 0 4px 6px -2px rgba(20, 24, 36, 0.04) !important;
-            min-width: 250px;
-            padding: 0.5rem;
+            padding: 0.4rem !important;
             margin-top: 0.65rem !important;
             z-index: 1040 !important;
+            background-color: #ffffff !important;
+        }
+
+        .phoenix-user-dropdown-menu {
+            min-width: 250px;
+            padding: 0.5rem !important;
+        }
+
+        .phoenix-dropdown-menu {
+            min-width: 185px;
         }
 
         .dropdown-item-phoenix {
@@ -307,6 +330,12 @@
         .dropdown-item-phoenix:hover {
             background-color: #f1f5f9;
             color: var(--phoenix-primary);
+        }
+
+        .dropdown-item-phoenix.active,
+        .dropdown-item-phoenix.active-item {
+            background-color: var(--phoenix-primary-subtle) !important;
+            color: var(--phoenix-primary) !important;
         }
 
         .dropdown-item-phoenix.text-danger:hover {
@@ -561,42 +590,57 @@
         }
 
         /* -------------------------------------------------------------
-           SWEETALERT2 PHOENIX TOAST & POPUP THEME
+           SWEETALERT2 PHOENIX TOAST & POP-UP THEME (Top-Right Toast)
            ------------------------------------------------------------- */
         .phoenix-swal-toast {
             font-family: var(--phoenix-font-sans) !important;
-            border-radius: 10px !important;
+            border-radius: 14px !important;
             border: 1px solid var(--phoenix-border-color) !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+            box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.15), 0 4px 12px -2px rgba(15, 23, 42, 0.08) !important;
             padding: 0.85rem 1.15rem !important;
             background-color: #ffffff !important;
+            margin-top: 16px !important;
+            margin-right: 16px !important;
         }
+
         .phoenix-swal-toast .swal2-title {
-            font-size: 0.875rem !important;
+            font-size: 0.9rem !important;
             color: var(--phoenix-text-emphasis) !important;
             font-weight: 700 !important;
             margin: 0 !important;
             line-height: 1.3 !important;
+            text-align: left !important;
         }
+
         .phoenix-swal-toast .swal2-html-container {
-            font-size: 0.8125rem !important;
+            font-size: 0.825rem !important;
             color: var(--phoenix-text-body) !important;
             margin: 0.25rem 0 0 0 !important;
-            line-height: 1.4 !important;
+            line-height: 1.45 !important;
+            text-align: left !important;
         }
+
         .phoenix-swal-toast .swal2-icon {
-            margin: 0 0.75rem 0 0 !important;
-            width: 28px !important;
-            height: 28px !important;
-            border-width: 2px !important;
+            margin: 0 0.85rem 0 0 !important;
+            width: 30px !important;
+            height: 30px !important;
+            border-width: 2.5px !important;
+            flex-shrink: 0 !important;
         }
+
         .phoenix-swal-toast .swal2-icon.swal2-success {
             border-color: var(--phoenix-success) !important;
             color: var(--phoenix-success) !important;
         }
+        .phoenix-swal-toast .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: var(--phoenix-success) !important;
+        }
         .phoenix-swal-toast .swal2-icon.swal2-error {
             border-color: var(--phoenix-danger) !important;
             color: var(--phoenix-danger) !important;
+        }
+        .phoenix-swal-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: var(--phoenix-danger) !important;
         }
         .phoenix-swal-toast .swal2-icon.swal2-warning {
             border-color: var(--phoenix-warning) !important;
@@ -606,18 +650,21 @@
             border-color: var(--phoenix-primary) !important;
             color: var(--phoenix-primary) !important;
         }
+
         .phoenix-swal-toast .swal2-close {
-            font-size: 1.1rem !important;
-            color: #8592a3 !important;
+            font-size: 1.15rem !important;
+            color: #94a3b8 !important;
             margin: 0 !important;
             padding: 0 0.25rem !important;
             box-shadow: none !important;
+            transition: color 0.15s ease !important;
         }
         .phoenix-swal-toast .swal2-close:hover {
             color: var(--phoenix-danger) !important;
         }
+
         .phoenix-swal-toast .swal2-timer-progress-bar {
-            height: 3px !important;
+            height: 3.5px !important;
             background: var(--phoenix-primary) !important;
         }
         .phoenix-swal-toast.swal2-icon-success .swal2-timer-progress-bar {
@@ -630,21 +677,40 @@
             background: var(--phoenix-warning) !important;
         }
 
+        /* Modal Dialog for Confirmations */
         .phoenix-swal-modal {
             font-family: var(--phoenix-font-sans) !important;
-            border-radius: 12px !important;
+            border-radius: 18px !important;
             border: 1px solid var(--phoenix-border-color) !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-            padding: 1.5rem !important;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(227, 230, 237, 0.6) !important;
+            padding: 2rem 1.75rem 1.75rem !important;
+            background-color: #ffffff !important;
+            max-width: 440px !important;
+            width: 90% !important;
         }
-        .phoenix-swal-modal .swal2-title {
-            font-size: 1.15rem !important;
+        .phoenix-swal-title {
+            font-size: 1.25rem !important;
             font-weight: 800 !important;
             color: var(--phoenix-text-emphasis) !important;
+            letter-spacing: -0.02em !important;
+            margin: 0.25rem 0 0.5rem 0 !important;
+            padding: 0 !important;
+            line-height: 1.3 !important;
         }
-        .phoenix-swal-modal .swal2-html-container {
-            font-size: 0.875rem !important;
-            color: var(--phoenix-text-muted) !important;
+        .phoenix-swal-html {
+            font-size: 0.9rem !important;
+            color: var(--phoenix-text-body) !important;
+            line-height: 1.55 !important;
+            margin: 0.5rem 0 1.25rem 0 !important;
+            padding: 0 !important;
+        }
+        .phoenix-swal-actions {
+            margin-top: 1.25rem !important;
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -661,7 +727,7 @@
 
     <!-- PHOENIX VERTICAL SIDEBAR -->
     <aside class="phoenix-sidebar" id="phoenixSidebar" aria-label="Phoenix Main Navigation">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
+        <a href="{{ Auth::user()?->isStaff() ? route('barang.index') : route('dashboard') }}" class="sidebar-brand">
             <div class="brand-logo-icon">
                 <i class="fas fa-boxes-stacked"></i>
             </div>
@@ -672,41 +738,77 @@
         </a>
 
         <div class="sidebar-nav-container">
-            <div class="nav-label">{{ __('Main Dashboard') }}</div>
-            <a href="{{ route('dashboard') }}" class="phoenix-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <i class="fas fa-chart-pie"></i>
-                <span>{{ __('Dashboard') }}</span>
-            </a>
+            @if(Auth::user()?->isStaff())
+                <div class="nav-label">{{ __('Menu Utama') }}</div>
+                <a href="{{ route('barang.index') }}" class="phoenix-nav-link {{ request()->routeIs('barang.index') || request()->routeIs('barang.show') ? 'active' : '' }}">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>{{ __('Master Assets') }}</span>
+                </a>
+                <a href="{{ route('ticket.index') }}" class="phoenix-nav-link {{ request()->routeIs('ticket.*') ? 'active' : '' }}">
+                    <i class="fas fa-headset"></i>
+                    <span>{{ __('IT Helpdesk') }}</span>
+                </a>
+            @else
+                <div class="nav-label">{{ __('Main Dashboard') }}</div>
+                <a href="{{ route('dashboard') }}" class="phoenix-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>{{ __('Dashboard') }}</span>
+                </a>
 
-            <div class="nav-label">{{ __('Inventory Management') }}</div>
-            <a href="{{ route('barang.index') }}" class="phoenix-nav-link {{ request()->routeIs('barang.index') || request()->routeIs('barang.show') ? 'active' : '' }}">
-                <i class="fas fa-laptop-code"></i>
-                <span>{{ __('Master Assets') }}</span>
-            </a>
-            <a href="{{ route('category.index') }}" class="phoenix-nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
-                <i class="fas fa-tags"></i>
-                <span>{{ __('Kategori Assets') }}</span>
-            </a>
-            <a href="{{ route('vendor.index') }}" class="phoenix-nav-link {{ request()->routeIs('vendor.*') ? 'active' : '' }}">
-                <i class="fas fa-truck-field"></i>
-                <span>{{ __('Master Vendor') }}</span>
-            </a>
+                <div class="nav-label">{{ __('Inventory Management') }}</div>
+                <a href="{{ route('barang.index') }}" class="phoenix-nav-link {{ request()->routeIs('barang.index') || request()->routeIs('barang.show') ? 'active' : '' }}">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>{{ __('Master Assets') }}</span>
+                </a>
+                <a href="{{ route('barang.barcode.batch') }}" class="phoenix-nav-link {{ request()->routeIs('barang.barcode*') || request()->routeIs('barang.qrcode*') ? 'active' : '' }}">
+                    <i class="fas fa-qrcode"></i>
+                    <span>{{ __('Cetak QR Code') }}</span>
+                </a>
+                <a href="{{ route('category.index') }}" class="phoenix-nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
+                    <i class="fas fa-tags"></i>
+                    <span>{{ __('Kategori Assets') }}</span>
+                </a>
+                <a href="{{ route('departemen.index') }}" class="phoenix-nav-link {{ request()->routeIs('departemen.*') ? 'active' : '' }}">
+                    <i class="fas fa-building"></i>
+                    <span>{{ __('Master Departemen') }}</span>
+                </a>
+                <a href="{{ route('lokasi.index') }}" class="phoenix-nav-link {{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+                    <i class="fas fa-location-dot"></i>
+                    <span>{{ __('Master Lokasi') }}</span>
+                </a>
+                <a href="{{ route('vendor.index') }}" class="phoenix-nav-link {{ request()->routeIs('vendor.*') ? 'active' : '' }}">
+                    <i class="fas fa-truck-field"></i>
+                    <span>{{ __('Master Vendor') }}</span>
+                </a>
 
-            <div class="nav-label">{{ __('Operations & Handover') }}</div>
-            <a href="{{ route('handover.history') }}" class="phoenix-nav-link {{ request()->routeIs('handover.*') ? 'active' : '' }}">
-                <i class="fas fa-file-invoice"></i>
-                <span>{{ __('Handover & Receipt') }}</span>
-            </a>
-            <a href="{{ route('handover.create') }}" class="phoenix-nav-link {{ request()->routeIs('handover.create') ? 'active' : '' }}">
-                <i class="fas fa-file-circle-plus"></i>
-                <span>{{ __('Terbitkan Tanda Terima') }}</span>
-            </a>
+                <div class="nav-label">{{ __('Operations & Handover') }}</div>
+                <a href="{{ route('handover.history') }}" class="phoenix-nav-link {{ request()->routeIs('handover.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>{{ __('Handover & Receipt') }}</span>
+                </a>
+                <a href="{{ route('handover.create') }}" class="phoenix-nav-link {{ request()->routeIs('handover.create') ? 'active' : '' }}">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <span>{{ __('Terbitkan Tanda Terima') }}</span>
+                </a>
+                <a href="{{ route('maintenance.index') }}" class="phoenix-nav-link {{ request()->routeIs('maintenance.*') ? 'active' : '' }}">
+                    <i class="fas fa-screwdriver-wrench"></i>
+                    <span>{{ __('Maintenance Aset') }}</span>
+                </a>
+                <a href="{{ route('ticket.index') }}" class="phoenix-nav-link {{ request()->routeIs('ticket.*') ? 'active' : '' }}">
+                    <i class="fas fa-headset"></i>
+                    <span>{{ __('IT Helpdesk') }}</span>
+                </a>
 
-            <div class="nav-label">{{ __('System Admin') }}</div>
-            <a href="{{ route('users.index') }}" class="phoenix-nav-link {{ request()->routeIs('users.*') || request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <i class="fas fa-user-gear"></i>
-                <span>{{ __('User Management') }}</span>
-            </a>
+                <div class="nav-label">{{ __('System Admin') }}</div>
+                <a href="{{ route('users.index') }}" class="phoenix-nav-link {{ request()->routeIs('users.*') || request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="fas fa-user-gear"></i>
+                    <span>{{ __('User Management') }}</span>
+                </a>
+                <a href="{{ route('activity_logs.index') }}" class="phoenix-nav-link {{ request()->routeIs('activity_logs.*') ? 'active' : '' }}">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span>{{ __('Audit Activity Log') }}</span>
+                </a>
+            @endif
         </div>
     </aside>
 
@@ -727,34 +829,62 @@
             <a href="{{ route('barang.index') }}" class="btn-nav-action d-none d-sm-flex" title="{{ __('Master Assets') }}">
                 <i class="fas fa-layer-group"></i>
             </a>
-            <a href="{{ route('handover.create') }}" class="btn-nav-action d-none d-sm-flex" title="{{ __('Terbitkan Tanda Terima') }}">
-                <i class="fas fa-plus"></i>
-            </a>
+            @if(!Auth::user()?->isStaff())
+                <a href="{{ route('handover.create') }}" class="btn-nav-action d-none d-sm-flex" title="{{ __('Terbitkan Tanda Terima') }}">
+                    <i class="fas fa-plus"></i>
+                </a>
+            @endif
 
             <!-- Language Switcher Dropdown -->
             <div class="dropdown">
-                <button type="button" class="btn btn-nav-action d-inline-flex align-items-center justify-content-center px-2" style="width: auto; min-width: 48px; height: 38px; border-radius: 20px; font-weight: 700; font-size: 0.775rem;" data-bs-toggle="dropdown" aria-expanded="false" title="{{ __('Bahasa') }}">
+                <button type="button" class="btn btn-nav-action d-inline-flex align-items-center justify-content-center px-2" style="width: auto; min-width: 52px; height: 38px; border-radius: 20px; font-weight: 700; font-size: 0.775rem;" data-bs-toggle="dropdown" aria-expanded="false" title="{{ __('Bahasa') }}">
                     @if(app()->getLocale() == 'en')
-                        <span class="me-1">🇺🇸</span> <span class="d-none d-sm-inline">EN</span>
+                        <svg class="rounded flex-shrink-0 me-1" width="16" height="11" viewBox="0 0 18 13" style="border: 1px solid rgba(0,0,0,0.12);">
+                            <rect width="18" height="13" fill="#B22234"/>
+                            <rect y="1" width="18" height="1" fill="#FFFFFF"/>
+                            <rect y="3" width="18" height="1" fill="#FFFFFF"/>
+                            <rect y="5" width="18" height="1" fill="#FFFFFF"/>
+                            <rect y="7" width="18" height="1" fill="#FFFFFF"/>
+                            <rect y="9" width="18" height="1" fill="#FFFFFF"/>
+                            <rect y="11" width="18" height="1" fill="#FFFFFF"/>
+                            <rect width="7.5" height="7" fill="#3C3B6E"/>
+                        </svg>
+                        <span class="d-none d-sm-inline">EN</span>
                     @else
-                        <span class="me-1">🇮🇩</span> <span class="d-none d-sm-inline">ID</span>
+                        <svg class="rounded flex-shrink-0 me-1" width="16" height="11" viewBox="0 0 18 13" style="border: 1px solid rgba(0,0,0,0.12);">
+                            <rect width="18" height="6.5" fill="#E70011"/>
+                            <rect y="6.5" width="18" height="6.5" fill="#FFFFFF"/>
+                        </svg>
+                        <span class="d-none d-sm-inline">ID</span>
                     @endif
                     <i class="fas fa-chevron-down ms-1 text-muted" style="font-size: 0.6rem;"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 py-1" style="border-radius: 10px; min-width: 170px;">
+                <ul class="dropdown-menu dropdown-menu-end phoenix-dropdown-menu">
                     <li>
-                        <a class="dropdown-item-phoenix {{ app()->getLocale() == 'id' ? 'bg-primary-subtle text-primary fw-bold' : '' }}" href="{{ route('lang.switch', 'id') }}">
-                            <span class="fs-6 me-2">🇮🇩</span>
-                            <span>Bahasa Indonesia</span>
+                        <a class="dropdown-item-phoenix {{ app()->getLocale() == 'id' ? 'active-item' : '' }}" href="{{ route('lang.switch', 'id') }}">
+                            <svg class="rounded flex-shrink-0" width="18" height="13" viewBox="0 0 18 13" style="border: 1px solid rgba(0,0,0,0.12);">
+                                <rect width="18" height="6.5" fill="#E70011"/>
+                                <rect y="6.5" width="18" height="6.5" fill="#FFFFFF"/>
+                            </svg>
+                            <span class="flex-grow-1">Bahasa Indonesia</span>
                             @if(app()->getLocale() == 'id')
                                 <i class="fas fa-check ms-auto text-primary" style="font-size: 0.75rem;"></i>
                             @endif
                         </a>
                     </li>
-                    <li>
-                        <a class="dropdown-item-phoenix {{ app()->getLocale() == 'en' ? 'bg-primary-subtle text-primary fw-bold' : '' }}" href="{{ route('lang.switch', 'en') }}">
-                            <span class="fs-6 me-2">🇺🇸</span>
-                            <span>English</span>
+                    <li class="mt-1">
+                        <a class="dropdown-item-phoenix {{ app()->getLocale() == 'en' ? 'active-item' : '' }}" href="{{ route('lang.switch', 'en') }}">
+                            <svg class="rounded flex-shrink-0" width="18" height="13" viewBox="0 0 18 13" style="border: 1px solid rgba(0,0,0,0.12);">
+                                <rect width="18" height="13" fill="#B22234"/>
+                                <rect y="1" width="18" height="1" fill="#FFFFFF"/>
+                                <rect y="3" width="18" height="1" fill="#FFFFFF"/>
+                                <rect y="5" width="18" height="1" fill="#FFFFFF"/>
+                                <rect y="7" width="18" height="1" fill="#FFFFFF"/>
+                                <rect y="9" width="18" height="1" fill="#FFFFFF"/>
+                                <rect y="11" width="18" height="1" fill="#FFFFFF"/>
+                                <rect width="7.5" height="7" fill="#3C3B6E"/>
+                            </svg>
+                            <span class="flex-grow-1">English</span>
                             @if(app()->getLocale() == 'en')
                                 <i class="fas fa-check ms-auto text-primary" style="font-size: 0.75rem;"></i>
                             @endif
@@ -768,21 +898,21 @@
             <!-- User Menu -->
             <div class="dropdown">
                 <div class="user-dropdown-btn" data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Admin') }}&background=3874ff&color=fff&bold=true" 
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=3874ff&color=fff&bold=true&size=128" 
                          alt="{{ Auth::user()->name ?? 'User' }}" 
                          class="user-avatar">
                     <div class="d-none d-md-block text-start">
-                        <div class="fw-bold text-dark" style="font-size: 0.8125rem; line-height: 1.2;">{{ Auth::user()->name ?? 'Administrator' }}</div>
-                        <div class="text-muted" style="font-size: 0.7rem;">{{ __('IT Asset Administrator') }}</div>
+                        <div class="fw-bold text-dark" style="font-size: 0.8125rem; line-height: 1.2;">{{ Auth::user()->name ?? 'User' }}</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">{{ Auth::user()?->getRoleDisplayName() ?? __('User') }}</div>
                     </div>
                     <i class="fas fa-chevron-down ms-1 text-muted" style="font-size: 0.65rem;"></i>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end phoenix-user-dropdown-menu">
                     <li class="p-2 mb-1 border-bottom bg-light rounded-3">
                         <div class="d-flex align-items-center gap-2">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Admin') }}&background=3874ff&color=fff&bold=true" 
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=3874ff&color=fff&bold=true&size=128" 
                                  alt="{{ Auth::user()->name ?? 'User' }}" 
-                                 class="rounded-circle" width="34" height="34">
+                                 class="rounded-circle flex-shrink-0" width="36" height="36" style="object-fit: cover; aspect-ratio: 1 / 1;">
                             <div class="overflow-hidden">
                                 <div class="fw-bold text-dark text-truncate" style="font-size: 0.825rem;">{{ Auth::user()->name ?? 'User' }}</div>
                                 <div class="text-muted text-truncate" style="font-size: 0.725rem;">{{ Auth::user()->email ?? '' }}</div>
@@ -795,12 +925,14 @@
                             <span>{{ __('Account Settings') }}</span>
                         </a>
                     </li>
-                    <li>
-                        <a class="dropdown-item-phoenix" href="{{ route('users.index') }}">
-                            <i class="fas fa-users text-secondary" style="width: 16px;"></i>
-                            <span>{{ __('User Management') }}</span>
-                        </a>
-                    </li>
+                    @if(!Auth::user()?->isStaff())
+                        <li>
+                            <a class="dropdown-item-phoenix" href="{{ route('users.index') }}">
+                                <i class="fas fa-users text-secondary" style="width: 16px;"></i>
+                                <span>{{ __('User Management') }}</span>
+                            </a>
+                        </li>
+                    @endif
                     <li><hr class="dropdown-divider my-1 border-light"></li>
                     <li>
                         <form method="POST" action="{{ route('logout') }}" class="m-0">
@@ -824,7 +956,7 @@
                 <div>
                     <h1 class="page-header-title">@yield('title', 'Data')</h1>
                     <div class="phoenix-breadcrumb">
-                        <a href="{{ route('dashboard') }}"><i class="fas fa-home me-1"></i> Dashboard</a>
+                        <a href="{{ Auth::user()?->isStaff() ? route('barang.index') : route('dashboard') }}"><i class="fas fa-home me-1"></i> {{ Auth::user()?->isStaff() ? __('Aset') : __('Dashboard') }}</a>
                         <span class="mx-1 text-muted">/</span>
                         <span class="text-dark">@yield('title', 'Overview')</span>
                     </div>
@@ -844,12 +976,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Phoenix Toast Configuration
+        // Phoenix Toast Configuration (Top-Right Toast, Auto-Dismiss)
         const PhoenixToast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 4000,
+            timer: 3500,
             timerProgressBar: true,
             showCloseButton: true,
             didOpen: (toast) => {
@@ -861,27 +993,43 @@
             }
         });
 
-        window.showToast = function(type, message, title = '') {
-            PhoenixToast.fire({
+        // Top-Right Auto-Dismiss Notification Helper
+        window.showToast = function(type, message, title = '', customTimer = null) {
+            let defaultTitle = '';
+            if (type === 'success') defaultTitle = '{{ __("Berhasil!") }}';
+            else if (type === 'error') defaultTitle = '{{ __("Gagal!") }}';
+            else if (type === 'warning') defaultTitle = '{{ __("Peringatan!") }}';
+            else defaultTitle = '{{ __("Informasi") }}';
+
+            let timerMs = customTimer || (type === 'error' ? 5000 : 3500);
+
+            return PhoenixToast.fire({
                 icon: type,
-                title: title ? title : '',
-                html: title ? `<div class="mt-1">${message}</div>` : message
+                title: title || defaultTitle,
+                html: message,
+                timer: timerMs
             });
         };
 
-        window.showPopup = function(type, title, text = '', confirmText = 'OK') {
-            return Swal.fire({
-                icon: type,
-                title: title,
-                html: text,
-                confirmButtonText: confirmText,
-                confirmButtonColor: '#3874ff',
-                customClass: {
-                    popup: 'phoenix-swal-modal',
-                    confirmButton: 'btn btn-phoenix-primary px-4 py-2'
-                },
-                buttonsStyling: false
-            });
+        // Convenience Aliases (pointing to Top-Right Auto-Dismiss Toast)
+        window.showSuccessModal = function(message, title = '{{ __("Berhasil!") }}') {
+            return window.showToast('success', message, title);
+        };
+
+        window.showErrorModal = function(message, title = '{{ __("Gagal!") }}') {
+            return window.showToast('error', message, title, 5000);
+        };
+
+        window.showWarningModal = function(message, title = '{{ __("Peringatan!") }}') {
+            return window.showToast('warning', message, title);
+        };
+
+        window.showInfoModal = function(message, title = '{{ __("Informasi") }}') {
+            return window.showToast('info', message, title);
+        };
+
+        window.showPopup = function(type, title, text = '') {
+            return window.showToast(type, text, title);
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -909,10 +1057,55 @@
                     }
                 });
             }
+
+            // Universal delete / confirmation pop-up modal for all forms with onsubmit="return confirm(...)"
+            document.addEventListener('click', function(e) {
+                const submitBtn = e.target.closest('form button[type="submit"], form input[type="submit"]');
+                if (submitBtn) {
+                    const form = submitBtn.closest('form');
+                    const onsubmitStr = form ? form.getAttribute('onsubmit') : null;
+                    if (onsubmitStr && onsubmitStr.includes('confirm(')) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        
+                        let confirmText = '{{ __("Apakah Anda yakin ingin melanjutkan tindakan ini? Tindakan ini tidak dapat dibatalkan.") }}';
+                        const match = onsubmitStr.match(/confirm\(['"](.+?)['"]\)/);
+                        if (match && match[1]) {
+                            confirmText = match[1];
+                        }
+
+                        Swal.fire({
+                            title: '{{ __("Konfirmasi Tindakan") }}',
+                            html: `<div class="text-secondary" style="font-size:0.925rem;">${confirmText}</div>`,
+                            icon: 'warning',
+                            iconColor: '#e5780b',
+                            showCancelButton: true,
+                            confirmButtonText: '<i class="fas fa-trash-can me-1.5"></i> {{ __("Ya, Lanjutkan") }}',
+                            cancelButtonText: '{{ __("Batal") }}',
+                            customClass: {
+                                popup: 'phoenix-swal-modal',
+                                title: 'phoenix-swal-title',
+                                htmlContainer: 'phoenix-swal-html',
+                                confirmButton: 'btn btn-danger px-4 py-2 rounded-3 fw-bold shadow-sm',
+                                cancelButton: 'btn btn-phoenix-secondary px-4 py-2 rounded-3 fw-semibold ms-2',
+                                actions: 'phoenix-swal-actions gap-2',
+                                closeButton: 'phoenix-swal-close-btn'
+                            },
+                            buttonsStyling: false,
+                            focusCancel: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.removeAttribute('onsubmit');
+                                form.submit();
+                            }
+                        });
+                    }
+                }
+            }, true);
         });
     </script>
 
-    <!-- Auto Pop-up Notifications from Session Flashes & Errors -->
+    <!-- Auto Top-Right Pop-up Notifications from Session Flashes & Errors -->
     @if(session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -926,9 +1119,9 @@
             document.addEventListener('DOMContentLoaded', function() {
                 let statusMsg = {!! json_encode(session('status')) !!};
                 if (statusMsg === 'profile-updated') {
-                    statusMsg = '{{ __("Informasi profil Anda telah diperbarui.") }}';
+                    statusMsg = '{{ __("Informasi profil Anda telah berhasil diperbarui.") }}';
                 } else if (statusMsg === 'password-updated') {
-                    statusMsg = '{{ __("Kata sandi Anda telah berhasil diubah.") }}';
+                    statusMsg = '{{ __("Kata sandi akun Anda telah berhasil diubah.") }}';
                 }
                 window.showToast('success', statusMsg, '{{ __("Berhasil!") }}');
             });
@@ -947,10 +1140,10 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const errorsList = {!! json_encode($errors->all()) !!};
-                const errorHtml = '<ul class="mb-0 text-start ps-3" style="font-size:0.8rem;">' + 
+                let errorHtml = '<ul class="mb-0 text-start ps-3" style="font-size:0.8rem; line-height:1.4;">' + 
                     errorsList.map(err => `<li>${err}</li>`).join('') + 
                     '</ul>';
-                window.showToast('error', errorHtml, '{{ __("Terjadi Kesalahan") }}');
+                window.showToast('error', errorHtml, '{{ __("Terjadi Kesalahan Input") }}', 6000);
             });
         </script>
     @endif
