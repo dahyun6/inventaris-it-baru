@@ -90,6 +90,26 @@
         border: 2px solid #ffffff;
         box-shadow: 0 0 0 2px var(--phoenix-primary-subtle);
     }
+
+    /* Handover feed item in Phoenix style */
+    .handover-feed-item {
+        position: relative;
+        padding: 0.9rem 1rem;
+        border-bottom: 1px solid var(--phoenix-border-color);
+        transition: background-color 0.15s ease;
+    }
+    .handover-feed-item:last-child {
+        border-bottom: none;
+    }
+    .handover-feed-item:hover {
+        background-color: #f8fafc;
+    }
+    .handover-route-box {
+        background-color: #f8fafc;
+        border: 1px solid var(--phoenix-border-color);
+        border-radius: 8px;
+        padding: 0.55rem 0.75rem;
+    }
 </style>
 
 <!-- PHOENIX KPI METRICS -->
@@ -254,47 +274,103 @@
 
     <!-- Handover Activity Feed -->
     <div class="col-lg-5 col-xl-4">
-        <div class="phoenix-card h-100">
-            <div class="phoenix-card-header">
+        <div class="phoenix-card h-100 d-flex flex-column justify-content-between">
+            <div class="phoenix-card-header d-flex align-items-center justify-content-between">
                 <div>
                     <h6 class="phoenix-card-title">
-                        <i class="fas fa-clock-rotate-left text-primary"></i>
+                        <i class="fas fa-arrow-right-arrow-left text-primary"></i>
                         {{ __('Aktivitas Handover Terkini') }}
                     </h6>
-                    <small class="text-muted">{{ __('Log serah terima terakhir') }}</small>
+                    <small class="text-muted">{{ __('Log serah terima unit & pergerakan lokasi') }}</small>
                 </div>
                 <span class="badge-phoenix badge-phoenix-primary">{{ $recent_handovers->count() }} {{ __('Terkini') }}</span>
             </div>
-            <div class="phoenix-card-body" style="max-height: 360px; overflow-y: auto;">
+            <div class="phoenix-card-body p-0 flex-grow-1" style="max-height: 400px; overflow-y: auto;">
                 @forelse($recent_handovers as $log)
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="d-flex justify-content-between align-items-start">
-                        <span class="fw-bold text-dark" style="font-size: 0.85rem;">
-                            {{ $log->user ? $log->user->name : 'Gudang IT' }}
-                        </span>
-                        <span class="text-muted small font-monospace">
-                            {{ \Carbon\Carbon::parse($log->tanggal_serah_terima)->diffForHumans() }}
-                        </span>
+                <div class="handover-feed-item">
+                    <!-- Top row: No Aset + Kategori & Tanggal Lengkap -->
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center gap-1.5 overflow-hidden">
+                            @if($log->barang)
+                                <a href="{{ route('barang.show', $log->barang->uuid) }}" class="fw-bold font-monospace text-primary text-decoration-none" style="font-size: 0.8125rem;" title="{{ __('Lihat Detail Aset') }}">
+                                    <i class="fas fa-barcode me-1"></i>{{ $log->barang->no_aset_local }}
+                                </a>
+                                <span class="badge bg-light text-secondary border font-monospace text-truncate" style="font-size: 0.675rem;">
+                                    {{ $log->barang->category->nama_kategori ?? 'Unit Aset' }}
+                                </span>
+                            @else
+                                <span class="fw-bold text-dark font-monospace" style="font-size: 0.8125rem;">Unit #{{ $log->barang_id }}</span>
+                            @endif
+                        </div>
+                        <div class="text-muted font-monospace text-nowrap" style="font-size: 0.725rem;" title="{{ \Carbon\Carbon::parse($log->tanggal_serah_terima ?? $log->created_at)->format('d M Y, H:i') }}">
+                            <i class="far fa-calendar-alt text-primary me-1"></i>{{ \Carbon\Carbon::parse($log->tanggal_serah_terima ?? $log->created_at)->translatedFormat('d M Y') }}
+                        </div>
                     </div>
-                    <div class="text-secondary small mt-1">
-                        {{ __('Diserahterimakan aset:') }} <span class="fw-semibold text-dark">{{ $log->barang->nama_barang }}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mt-1">
-                        <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.7rem;">
-                            <i class="fas fa-location-dot me-1 text-primary"></i>{{ $log->lokasi }}
-                        </span>
-                        @if($log->no_surat)
-                            <a href="{{ route('handover.receipt', $log->no_surat) }}" target="_blank" class="badge-phoenix badge-phoenix-info text-decoration-none" style="font-size: 0.6875rem;">
-                                <i class="fas fa-file-lines"></i> {{ __('Surat Tanda Terima') }}
-                            </a>
+
+                    <!-- Model / Nama Unit (Per 1 Unit) -->
+                    <div class="text-dark fw-semibold text-truncate mb-2" style="font-size: 0.825rem;">
+                        {{ $log->barang->nama_barang ?? ($log->barang->model ?? 'Perangkat IT') }}
+                        @if($log->barang && $log->barang->serial_number)
+                            <span class="text-muted fw-normal font-monospace" style="font-size: 0.725rem;">&bull; SN: {{ $log->barang->serial_number }}</span>
                         @endif
+                    </div>
+
+                    <!-- Route Box: Dari Pihak A ke B & Dari Lokasi Asal ke Tujuan -->
+                    <div class="handover-route-box mb-2">
+                        <!-- Pihak A ke Pihak B -->
+                        <div class="d-flex align-items-center justify-content-between mb-1 pb-1 border-bottom flex-wrap gap-1" style="font-size: 0.775rem;">
+                            <div class="d-flex align-items-center text-truncate" style="max-width: 46%;">
+                                <span class="text-muted me-1 small"><i class="fas fa-user-minus text-secondary me-0.5"></i>{{ __('Dari:') }}</span>
+                                <span class="fw-bold text-dark text-truncate" title="{{ $log->pemberi_nama }}">{{ $log->pemberi_nama }}</span>
+                            </div>
+                            <div class="text-primary px-1" style="font-size: 0.75rem;">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="d-flex align-items-center text-truncate" style="max-width: 46%;">
+                                <span class="text-muted me-1 small"><i class="fas fa-user-plus text-primary me-0.5"></i>{{ __('Ke:') }}</span>
+                                <span class="fw-bold text-primary text-truncate" title="{{ $log->penerima_display }}">{{ $log->penerima_display }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Lokasi Asal ke Lokasi Tujuan -->
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1" style="font-size: 0.725rem;">
+                            <div class="d-flex align-items-center text-secondary text-truncate" style="max-width: 46%;">
+                                <i class="fas fa-map-pin text-danger me-1 flex-shrink-0"></i>
+                                <span class="text-truncate font-monospace" title="{{ $log->lokasi_asal }}">{{ $log->lokasi_asal }}</span>
+                            </div>
+                            <div class="text-muted px-1" style="font-size: 0.65rem;">
+                                <i class="fas fa-angles-right text-success"></i>
+                            </div>
+                            <div class="d-flex align-items-center text-dark text-truncate" style="max-width: 46%;">
+                                <i class="fas fa-location-dot text-success me-1 flex-shrink-0"></i>
+                                <span class="fw-bold text-dark text-truncate font-monospace" title="{{ $log->lokasi }}">{{ $log->lokasi }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom row: Dokumen Surat Tanda Terima (STT) & Relative Time -->
+                    <div class="d-flex align-items-center justify-content-between pt-0.5">
+                        <div>
+                            @if($log->no_surat)
+                                <a href="{{ route('handover.receipt', $log->uuid ?? $log->no_surat) }}" target="_blank" class="badge-phoenix badge-phoenix-info text-decoration-none" style="font-size: 0.6875rem;">
+                                    <i class="fas fa-file-signature me-1"></i> {{ $log->no_surat }}
+                                </a>
+                            @else
+                                <span class="badge bg-light text-muted border font-monospace" style="font-size: 0.6875rem;">
+                                    <i class="fas fa-file-lines me-1"></i> {{ __('Log Internal') }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="text-muted small font-monospace" style="font-size: 0.7rem;">
+                            {{ \Carbon\Carbon::parse($log->tanggal_serah_terima ?? $log->created_at)->diffForHumans() }}
+                        </div>
                     </div>
                 </div>
                 @empty
-                <div class="text-center text-muted py-5">
+                <div class="text-center text-muted py-5 px-3">
                     <i class="fas fa-clipboard-check fs-2 opacity-25 mb-2"></i>
-                    <p class="mb-0 small">{{ __('Belum ada aktivitas serah terima tercatat.') }}</p>
+                    <p class="mb-0 small fw-semibold text-dark">{{ __('Belum Ada Aktivitas Handover') }}</p>
+                    <small class="text-muted">{{ __('Data serah terima aset per unit akan tampil di sini.') }}</small>
                 </div>
                 @endforelse
             </div>

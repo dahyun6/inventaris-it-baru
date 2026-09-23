@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Sign In') }} - SBL IT Assets</title>
+    <title>{{ __('Sign In') }} - Pandora IT Operations Hub</title>
 
     <!-- Google Fonts: Nunito Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -405,8 +405,8 @@
                         <i class="fas fa-boxes-stacked"></i>
                     </div>
                     <div>
-                        <div class="brand-title">SBL Assets</div>
-                        <div class="brand-subtitle">IT Inventory System</div>
+                        <div class="brand-title">Pandora</div>
+                        <div class="brand-subtitle">IT Operations Hub</div>
                     </div>
                 </div>
 
@@ -427,7 +427,7 @@
             <!-- FORM CORE -->
             <div class="my-auto py-3">
                 <h1 class="form-heading">{{ __('Selamat Datang') }}</h1>
-                <p class="form-subheading">{{ __('Masuk ke portal untuk mengelola aset, inventaris, dan serah terima IT.') }}</p>
+                <p class="form-subheading">{{ __('Masuk ke portal Pandora untuk mengelola aset, tiket bantuan, maintenance, dan serah terima IT.') }}</p>
 
                 <!-- Status / Alert Message -->
                 @if (session('status'))
@@ -471,17 +471,10 @@
                     </div>
 
                     <!-- Password Input -->
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <label for="password" class="form-label small fw-bold mb-0" style="color: #334155;">
-                                {{ __('Kata Sandi') }} <span class="text-danger">*</span>
-                            </label>
-                            @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="small fw-semibold text-decoration-none" style="color: var(--phoenix-primary); font-size: 0.775rem;">
-                                    {{ __('Lupa password?') }}
-                                </a>
-                            @endif
-                        </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label small fw-bold mb-1" style="color: #334155;">
+                            {{ __('Kata Sandi') }} <span class="text-danger">*</span>
+                        </label>
                         <div class="input-icon-wrapper">
                             <i class="fas fa-lock input-icon"></i>
                             <input type="password" 
@@ -498,34 +491,18 @@
                         </div>
                     </div>
 
-                    <!-- Remember Me -->
-                    <div class="d-flex align-items-center justify-content-between mb-4 pt-1">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remember" id="remember_me" {{ old('remember') ? 'checked' : '' }}>
-                            <label class="form-check-label small" for="remember_me" style="color: #64748b; font-weight: 600; cursor: pointer;">
-                                {{ __('Ingat sesi saya') }}
-                            </label>
-                        </div>
-                    </div>
-
                     <!-- Submit Button -->
                     <button type="submit" class="btn-phoenix-submit" id="btnSubmit">
                         <i class="fas fa-right-to-bracket me-1" id="submitIcon"></i>
                         <span id="submitText">{{ __('Masuk ke Dashboard') }}</span>
                     </button>
                 </form>
-
-                <!-- Security Trust Note -->
-                <div class="d-flex align-items-center justify-content-center gap-2 mt-4 pt-2 text-center" style="font-size: 0.75rem; color: #94a3b8;">
-                    <i class="fas fa-shield-halved text-success"></i>
-                    <span>{{ __('Sesi terenkripsi & diautentikasi aman') }}</span>
-                </div>
             </div>
 
             <!-- FOOTER -->
             <div class="pt-3 border-top text-center" style="border-color: var(--phoenix-border-color) !important;">
                 <span class="small text-muted" style="font-size: 0.75rem;">
-                    &copy; {{ date('Y') }} SBL IT Inventory Management. All rights reserved.
+                    &copy; {{ date('Y') }} Pandora IT Operations Hub. All rights reserved.
                 </span>
             </div>
 
@@ -541,17 +518,17 @@
             <div class="position-relative" style="z-index: 2;">
                 <div class="hero-badge">
                     <i class="fas fa-microchip"></i>
-                    <span>Enterprise IT Asset System</span>
+                    <span>Pandora Enterprise Suite</span>
                 </div>
             </div>
 
             <!-- Middle Feature Showcase -->
             <div class="hero-content">
                 <h2 class="hero-title">
-                    Centralized IT Hardware Tracking & Digital Handover
+                    Centralized IT Asset Management & Service Hub
                 </h2>
                 <p class="hero-description">
-                    Solusi terpadu pencatatan aset inventaris IT kantor, mutasi perangkat karyawan, integrasi vendor, serta penerbitan Berita Acara Serah Terima (BAST) secara instan.
+                    Solusi terpadu pencatatan aset inventaris, tiket helpdesk, pemeliharaan berkala, integrasi vendor, serta penerbitan Berita Acara Serah Terima (BAST) digital secara instan.
                 </p>
 
                 <!-- Glassmorphism Feature Cards -->
@@ -577,11 +554,11 @@
 
                 <div class="feature-card">
                     <div class="feature-icon-box">
-                        <i class="fas fa-barcode"></i>
+                        <i class="fas fa-headset"></i>
                     </div>
                     <div>
-                        <div class="feature-card-title">Automated Asset Code Tagging</div>
-                        <p class="feature-card-desc">Penomoran kode aset lokal terstandarisasi dengan kode prefix kategori untuk kemudahan inventarisasi.</p>
+                        <div class="feature-card-title">Ticketing & Maintenance Support</div>
+                        <p class="feature-card-desc">Pusat penanganan keluhan operasional, pemeliharaan berkala, dan rekam riwayat servis perangkat IT.</p>
                     </div>
                 </div>
             </div>

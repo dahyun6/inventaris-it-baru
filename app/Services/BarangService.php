@@ -194,6 +194,9 @@ class BarangService
             'lokasi'               => $data['lokasi'],
             'keterangan'           => $data['keterangan'] ?? null,
             'tanggal_serah_terima' => $data['tanggal_serah_terima'],
+            'status_terima'        => 'pending',
+            'accepted_at'          => null,
+            'accepted_by'          => null,
         ]);
 
         ActivityLogService::log(

@@ -225,7 +225,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <a href="{{ route('maintenance.show', $row->id) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
+                            <a href="{{ route('maintenance.show', $row->uuid) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
                                 <i class="fas fa-ticket me-1"></i>{{ $row->no_maintenance }}
                             </a>
                         </td>
@@ -287,12 +287,12 @@
                         </td>
                         <td class="text-center text-nowrap">
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ route('maintenance.show', $row->id) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Servis') }}">
+                                <a href="{{ route('maintenance.show', $row->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Servis') }}">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
                                 @if($row->status === 'Dalam Proses')
                                 <button type="button" class="btn btn-phoenix-secondary py-1 px-2 btn-complete-modal" 
-                                    data-id="{{ $row->id }}"
+                                    data-id="{{ $row->uuid }}"
                                     data-no="{{ $row->no_maintenance }}"
                                     data-aset="{{ $row->barang->no_aset_local ?? '' }} - {{ $row->barang->nama_barang ?? ($row->barang->model ?? '') }}"
                                     data-biaya="{{ (int)$row->biaya }}"
@@ -301,13 +301,13 @@
                                     <i class="fas fa-circle-check text-success"></i>
                                 </button>
                                 @endif
-                                <a href="{{ route('maintenance.edit', $row->id) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Edit') }}">
+                                <a href="{{ route('maintenance.edit', $row->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Edit') }}">
                                     <i class="fas fa-pencil text-warning"></i>
                                 </a>
-                                <a href="{{ route('maintenance.print', $row->id) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak SPK / Laporan') }}">
+                                <a href="{{ route('maintenance.print', $row->uuid) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak SPK / Laporan') }}">
                                     <i class="fas fa-print text-secondary"></i>
                                 </a>
-                                <form action="{{ route('maintenance.destroy', $row->id) }}" method="POST" class="d-inline form-delete-maintenance">
+                                <form action="{{ route('maintenance.destroy', $row->uuid) }}" method="POST" class="d-inline form-delete-maintenance">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Hapus') }}">

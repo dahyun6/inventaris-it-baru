@@ -149,7 +149,27 @@
     $filterVendor = $barangs->pluck('vendor')->unique()->filter()->sort();
     $filterDept = $barangs->pluck('dept')->unique()->filter()->sort();
     $filterLoc = $barangs->pluck('unit_loc')->unique()->filter()->sort();
+    $pendingHandoverCount = Auth::user()?->isStaff() ? Auth::user()->pendingHandoversCount() : 0;
 @endphp
+
+@if(Auth::user()?->isStaff() && $pendingHandoverCount > 0)
+<div class="alert alert-warning border border-warning-subtle rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-sm" style="background-color: #fffbeb;">
+    <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-warning bg-opacity-25 p-2 d-flex align-items-center justify-content-center text-warning-emphasis" style="width: 42px; height: 42px; flex-shrink: 0;">
+            <i class="fas fa-file-signature fs-5"></i>
+        </div>
+        <div>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.925rem;">
+                {{ __('Ada :count Dokumen Tanda Terima Aset Menunggu Konfirmasi Anda', ['count' => $pendingHandoverCount]) }}
+            </h6>
+            <small class="text-muted">{{ __('Departemen IT telah menerbitkan serah terima perangkat untuk Anda. Silakan periksa dan konfirmasi penerimaan.') }}</small>
+        </div>
+    </div>
+    <a href="{{ route('handover.history') }}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+        <i class="fas fa-arrow-right me-1"></i> {{ __('Lihat & Konfirmasi Dokumen') }}
+    </a>
+</div>
+@endif
 
 <!-- FILTER CONTROL PANEL -->
 <div class="phoenix-filter-panel">

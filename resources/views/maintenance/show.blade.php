@@ -7,10 +7,10 @@
     <a href="{{ route('maintenance.index') }}" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> {{ __('Daftar Maintenance') }}
     </a>
-    <a href="{{ route('maintenance.print', $maintenance->id) }}" target="_blank" class="btn btn-phoenix-secondary btn-sm">
+    <a href="{{ route('maintenance.print', $maintenance->uuid) }}" target="_blank" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-print me-1"></i> {{ __('Cetak SPK / Laporan') }}
     </a>
-    <a href="{{ route('maintenance.edit', $maintenance->id) }}" class="btn btn-phoenix-secondary btn-sm">
+    <a href="{{ route('maintenance.edit', $maintenance->uuid) }}" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-pencil me-1 text-warning"></i> {{ __('Edit') }}
     </a>
     @if($maintenance->status === 'Dalam Proses')
@@ -187,7 +187,7 @@
                 </h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('maintenance.complete', $maintenance->id) }}" method="POST">
+            <form action="{{ route('maintenance.complete', $maintenance->uuid) }}" method="POST">
                 @csrf
                 @method('PATCH')
                 <div class="modal-body p-4">

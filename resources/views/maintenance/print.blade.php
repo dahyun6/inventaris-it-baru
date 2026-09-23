@@ -69,6 +69,12 @@
             text-transform: uppercase;
         }
 
+        .company-subtitle {
+            font-size: 12.5px;
+            color: #6e7891;
+            font-weight: 600;
+        }
+
         .doc-title-badge {
             font-size: 14px;
             font-weight: 800;
@@ -207,7 +213,7 @@
                 color: #000000 !important;
             }
 
-            .screen-toolbar, .no-print {
+            .screen-toolbar, .no-print, .fas, .far, .fab, .fa, i {
                 display: none !important;
             }
 
@@ -251,7 +257,7 @@
 <div class="screen-toolbar no-print">
     <div class="container-fluid d-flex justify-content-between align-items-center" style="max-width: 860px;">
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('maintenance.show', $maintenance->id) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('maintenance.show', $maintenance->uuid) }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali ke Detail
             </a>
             <a href="{{ route('maintenance.index') }}" class="btn btn-sm btn-outline-secondary">
@@ -266,11 +272,37 @@
     </div>
 </div>
 
+@php
+    $logoFile = null;
+    $possibleFiles = ['logosbl.png', 'logosbl.jpg', 'logosbl.svg', 'logo.png', 'logo.jpg', 'logo.jpeg', 'logo.svg', 'logo.webp'];
+    foreach($possibleFiles as $file) {
+        if(file_exists(public_path('assets/images/' . $file))) {
+            $logoFile = asset('assets/images/' . $file);
+            break;
+        }
+    }
+    if(!$logoFile && is_dir(public_path('assets/images'))) {
+        $scanned = scandir(public_path('assets/images'));
+        foreach($scanned as $f) {
+            if(preg_match('/\.(png|jpe?g|svg|webp)$/i', $f)) {
+                $logoFile = asset('assets/images/' . $f);
+                break;
+            }
+        }
+    }
+@endphp
+
 <div class="receipt-container">
     <!-- Header Dokumen / Kop Surat -->
     <div class="doc-header d-flex justify-content-between align-items-center">
-        <div>
-            <div class="company-title"><i class="fas fa-boxes-stacked text-primary me-2 no-print"></i>SBL IT ASSETS MANAGEMENT</div>
+        <div class="d-flex align-items-center gap-3">
+            @if($logoFile)
+                <img src="{{ $logoFile }}" alt="Logo PT. SCG Barito Logistics" style="max-height: 48px; max-width: 140px; object-fit: contain;">
+            @endif
+            <div>
+                <div class="company-title">PANDORA IT OPERATIONS</div>
+                <div class="company-subtitle">IT Dept. PT. SCG Barito Logistics</div>
+            </div>
         </div>
         <div class="text-end">
             <div class="badge bg-dark text-white px-2 py-1" style="font-size: 11px;">WORK ORDER & SERVICE LOG</div>
@@ -345,7 +377,7 @@
     </div>
 
     <!-- Tabel Rincian Kerusakan & Tindakan -->
-    <div class="fw-bold mb-1" style="font-size: 12px; color: #141824;"><i class="fas fa-list-check me-1 text-primary"></i> RINCIAN KENDALA KERUSAKAN & TINDAKAN PENANGANAN:</div>
+    <div class="fw-bold mb-1" style="font-size: 12px; color: #141824;">RINCIAN KENDALA KERUSAKAN & TINDAKAN PENANGANAN:</div>
     <table class="table-items">
         <thead>
             <tr>
@@ -366,7 +398,7 @@
     </table>
 
     <div class="terms-box">
-        <div class="fw-bold mb-1" style="color: #141824;"><i class="fas fa-circle-info me-1"></i> Ketentuan Pemeliharaan:</div>
+        <div class="fw-bold mb-1" style="color: #141824;">Ketentuan Pemeliharaan:</div>
         <ol>
             <li>Setiap penggantian komponen hardware / suku cadang wajib dicatat rinciannya pada dokumen ini.</li>
             <li>Perangkat yang telah selesai diservis dan dinyatakan normal siap dikembalikan ke pengguna atau disimpan di Gudang IT.</li>

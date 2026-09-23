@@ -146,7 +146,7 @@
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-1.5 mb-2" style="border-color: #090d16 !important;">
                         <div class="d-flex align-items-center gap-1">
                             <span class="rounded-circle bg-dark d-inline-block" style="width: 6px; height: 6px;"></span>
-                            <span class="fw-bold text-dark font-monospace" style="font-size: 0.7rem; letter-spacing: 0.05em;">SBL IT ASSET</span>
+                            <span class="fw-bold text-dark font-monospace" style="font-size: 0.7rem; letter-spacing: 0.05em;">PANDORA IT ASSET</span>
                         </div>
                         <div class="d-flex gap-1">
                             <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.55rem;">{{ $barang->category->nama_kategori ?? 'HARDWARE' }}</span>
@@ -209,8 +209,8 @@
                             <tr>
                                 <th class="ps-3">{{ __('TANGGAL') }}</th>
                                 <th>{{ __('NO DOKUMEN / SURAT') }}</th>
-                                <th>{{ __('PENGGUNA / PENERIMA') }}</th>
-                                <th>{{ __('LOKASI') }}</th>
+                                <th>{{ __('PIHAK SERAH TERIMA (DARI ➔ KE)') }}</th>
+                                <th>{{ __('PERGERAKAN LOKASI (DARI ➔ KE)') }}</th>
                                 <th>{{ __('CATATAN KONDISI') }}</th>
                                 <th class="text-center">{{ __('DOKUMEN') }}</th>
                             </tr>
@@ -218,7 +218,7 @@
                         <tbody>
                             @forelse($barang->riwayat as $log)
                             <tr>
-                                <td class="ps-3 text-nowrap font-monospace">{{ \Carbon\Carbon::parse($log->tanggal_serah_terima ?? $log->created_at)->format('d M Y, H:i') }}</td>
+                                <td class="ps-3 text-nowrap font-monospace">{{ \Carbon\Carbon::parse($log->tanggal_serah_terima ?? $log->created_at)->format('d M Y') }}</td>
                                 <td>
                                     @if($log->no_surat)
                                         <span class="badge bg-light text-primary border font-monospace px-2 py-1" style="font-size: 0.75rem;">
@@ -229,24 +229,26 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if(!empty($log->penerima_nama))
-                                        <span class="fw-bold text-dark"><i class="far fa-user me-1 text-primary"></i> {{ $log->penerima_nama }}</span>
-                                    @elseif($log->user)
-                                        <span class="fw-bold text-dark"><i class="far fa-user me-1 text-primary"></i> {{ $log->user->name }}</span>
-                                    @else
-                                        <span class="fw-semibold text-success"><i class="fas fa-warehouse me-1"></i> Gudang IT</span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
+                                        <span class="text-muted"><i class="fas fa-user-minus text-secondary me-1"></i>{{ $log->pemberi_nama }}</span>
+                                        <i class="fas fa-arrow-right text-primary mx-1"></i>
+                                        <span class="fw-bold text-primary"><i class="fas fa-user-plus text-primary me-1"></i>{{ $log->penerima_display }}</span>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-secondary border"><i class="fas fa-location-dot me-1 text-primary"></i>{{ $log->lokasi ?? '-' }}</span>
+                                    <div class="d-flex align-items-center gap-1.5 font-monospace" style="font-size: 0.775rem;">
+                                        <span class="text-secondary"><i class="fas fa-map-pin text-danger me-1"></i>{{ $log->lokasi_asal }}</span>
+                                        <i class="fas fa-arrow-right-long text-success mx-1"></i>
+                                        <span class="fw-bold text-dark"><i class="fas fa-location-dot text-success me-1"></i>{{ $log->lokasi ?? '-' }}</span>
+                                    </div>
                                 </td>
                                 <td>{{ Str::limit($log->keterangan ?? '-', 35) }}</td>
                                 <td class="text-center text-nowrap">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('handover.receipt', $log->no_surat ?: $log->id) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Preview Dokumen') }}">
+                                        <a href="{{ route('handover.receipt', $log->uuid ?? ($log->no_surat ?: $log->id)) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Preview Dokumen') }}">
                                             <i class="fas fa-eye text-primary me-1"></i> {{ __('Preview') }}
                                         </a>
-                                        <a href="{{ route('handover.receipt', $log->no_surat ?: $log->id) }}?print=1" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak PDF') }}">
+                                        <a href="{{ route('handover.receipt', $log->uuid ?? ($log->no_surat ?: $log->id)) }}?print=1" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak PDF') }}">
                                             <i class="fas fa-print text-secondary"></i> {{ __('PDF') }}
                                         </a>
                                     </div>
@@ -303,7 +305,7 @@
                                     {{ \Carbon\Carbon::parse($mnt->tanggal_mulai)->format('d M Y') }}
                                 </td>
                                 <td>
-                                    <a href="{{ route('maintenance.show', $mnt->id) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
+                                    <a href="{{ route('maintenance.show', $mnt->uuid) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
                                         <i class="fas fa-ticket me-1"></i>{{ $mnt->no_maintenance }}
                                     </a>
                                 </td>
@@ -333,10 +335,10 @@
                                 </td>
                                 <td class="text-center text-nowrap">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('maintenance.show', $mnt->id) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Servis') }}">
+                                        <a href="{{ route('maintenance.show', $mnt->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Servis') }}">
                                             <i class="fas fa-eye text-primary"></i>
                                         </a>
-                                        <a href="{{ route('maintenance.print', $mnt->id) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak SPK') }}">
+                                        <a href="{{ route('maintenance.print', $mnt->uuid) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak SPK') }}">
                                             <i class="fas fa-print text-secondary"></i>
                                         </a>
                                     </div>
@@ -393,7 +395,7 @@
                                     {{ $tkt->created_at->format('d M Y, H:i') }}
                                 </td>
                                 <td>
-                                    <a href="{{ route('ticket.show', $tkt->id) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
+                                    <a href="{{ route('ticket.show', $tkt->uuid) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
                                         <i class="fas fa-ticket me-1"></i>{{ $tkt->no_tiket }}
                                     </a>
                                 </td>
@@ -427,10 +429,10 @@
                                 </td>
                                 <td class="text-center text-nowrap">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('ticket.show', $tkt->id) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Tiket') }}">
+                                        <a href="{{ route('ticket.show', $tkt->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Tiket') }}">
                                             <i class="fas fa-comments text-primary"></i>
                                         </a>
-                                        <a href="{{ route('ticket.print', $tkt->id) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak') }}">
+                                        <a href="{{ route('ticket.print', $tkt->uuid) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak') }}">
                                             <i class="fas fa-print text-secondary"></i>
                                         </a>
                                     </div>

@@ -60,4 +60,35 @@ class DashboardServiceTest extends TestCase
         $this->assertArrayHasKey('labels_grafik', $data);
         $this->assertArrayHasKey('data_aset_masuk', $data);
     }
+
+    public function test_get_recent_handovers_tracks_parties_and_locations(): void
+    {
+        $cat = Category::factory()->create();
+        $barang = Barang::factory()->create(['category_id' => $cat->id, 'no_aset_local' => 'AST-TEST-01']);
+
+        RiwayatAset::create([
+            'barang_id'            => $barang->id,
+            'diserahkan_oleh'      => 'Admin IT',
+            'penerima_nama'        => 'User A',
+            'lokasi'               => 'Ruang Finance',
+            'tanggal_serah_terima' => '2026-09-01',
+        ]);
+
+        RiwayatAset::create([
+            'barang_id'            => $barang->id,
+            'diserahkan_oleh'      => 'User A',
+            'penerima_nama'        => 'User B',
+            'lokasi'               => 'Ruang Marketing',
+            'tanggal_serah_terima' => '2026-09-10',
+        ]);
+
+        $recent = $this->service->getRecentHandovers(5);
+
+        $this->assertCount(2, $recent);
+        $latest = $recent->first();
+        $this->assertEquals('User A', $latest->pemberi_nama);
+        $this->assertEquals('User B', $latest->penerima_display);
+        $this->assertEquals('Ruang Finance', $latest->lokasi_asal);
+        $this->assertEquals('Ruang Marketing', $latest->lokasi);
+    }
 }

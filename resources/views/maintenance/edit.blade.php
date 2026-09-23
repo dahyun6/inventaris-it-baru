@@ -4,7 +4,7 @@
 
 @section('header_actions')
 <div class="d-flex gap-2">
-    <a href="{{ route('maintenance.show', $maintenance->id) }}" class="btn btn-phoenix-secondary btn-sm">
+    <a href="{{ route('maintenance.show', $maintenance->uuid) }}" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> {{ __('Detail Maintenance') }}
     </a>
     <a href="{{ route('maintenance.index') }}" class="btn btn-phoenix-secondary btn-sm">
@@ -39,7 +39,7 @@
                 </div>
                 @endif
 
-                <form action="{{ route('maintenance.update', $maintenance->id) }}" method="POST" id="formEditMaintenance">
+                <form action="{{ route('maintenance.update', $maintenance->uuid) }}" method="POST" id="formEditMaintenance">
                     @csrf
                     @method('PUT')
 
@@ -165,7 +165,7 @@
 
                     <!-- FOOTER ACTIONS -->
                     <div class="p-3 bg-light border-top -mx-4 -mb-4 mt-4 d-flex justify-content-between align-items-center" style="margin-left: -1.5rem; margin-right: -1.5rem; margin-bottom: -1.5rem; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-                        <a href="{{ route('maintenance.show', $maintenance->id) }}" class="btn btn-phoenix-secondary btn-sm">{{ __('Batal') }}</a>
+                        <a href="{{ route('maintenance.show', $maintenance->uuid) }}" class="btn btn-phoenix-secondary btn-sm">{{ __('Batal') }}</a>
                         <button type="submit" class="btn btn-phoenix-primary btn-sm px-4">
                             <i class="fas fa-save me-1"></i> {{ __('Simpan Perubahan') }}
                         </button>

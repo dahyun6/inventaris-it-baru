@@ -45,7 +45,7 @@ class MaintenanceController extends Controller
     {
         $maintenance = $this->maintenanceService->create($request->validated(), Auth::id());
 
-        return redirect()->route('maintenance.show', $maintenance->id)
+        return redirect()->route('maintenance.show', $maintenance->uuid)
             ->with('success', 'Catatan maintenance aset (' . $maintenance->no_maintenance . ') berhasil dibuat!');
     }
 
@@ -72,7 +72,7 @@ class MaintenanceController extends Controller
     {
         $this->maintenanceService->update($maintenance, $request->validated());
 
-        return redirect()->route('maintenance.show', $maintenance->id)
+        return redirect()->route('maintenance.show', $maintenance->uuid)
             ->with('success', 'Data maintenance (' . $maintenance->no_maintenance . ') berhasil diperbarui!');
     }
 
@@ -80,7 +80,7 @@ class MaintenanceController extends Controller
     {
         $this->maintenanceService->complete($maintenance, $request->validated());
 
-        return redirect()->route('maintenance.show', $maintenance->id)
+        return redirect()->route('maintenance.show', $maintenance->uuid)
             ->with('success', 'Maintenance (' . $maintenance->no_maintenance . ') telah berhasil diselesaikan!');
     }
 

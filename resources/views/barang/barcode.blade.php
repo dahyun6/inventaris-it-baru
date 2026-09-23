@@ -432,7 +432,7 @@
             <div class="label-header">
                 <div class="label-brand-block">
                     <span class="brand-dot"></span>
-                    <span class="label-brand-title">SBL IT ASSET</span>
+                    <span class="label-brand-title">PANDORA IT ASSET</span>
                 </div>
                 <div class="label-badge-group">
                     <span class="label-chip">{{ $barang->category->nama_kategori ?? 'HARDWARE' }}</span>

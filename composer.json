@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "pandora/pandora",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Pandora - Integrated IT Asset & Operations Management Portal",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {

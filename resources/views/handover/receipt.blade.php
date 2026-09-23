@@ -213,7 +213,7 @@
                 font-size: 11pt !important;
             }
 
-            .screen-toolbar, .no-print {
+            .screen-toolbar, .no-print, .fas, .far, .fab, .fa, i {
                 display: none !important;
             }
 
@@ -276,31 +276,76 @@
 
 <!-- Action Bar (Hidden on Print) -->
 <div class="screen-toolbar no-print">
-    <div class="container-fluid d-flex justify-content-between align-items-center" style="max-width: 860px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2" style="max-width: 860px;">
         <div class="d-flex align-items-center gap-2">
             <a href="{{ route('handover.history') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Riwayat
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Riwayat') }}
             </a>
-            <a href="{{ route('handover.create') }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-plus me-1"></i> Buat Tanda Terima Baru
-            </a>
+            @if(!Auth::user()?->isStaff())
+                <a href="{{ route('handover.create') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i> {{ __('Buat Tanda Terima Baru') }}
+                </a>
+            @endif
         </div>
         <div class="d-flex align-items-center gap-2">
+            @if(($first->status_terima ?? 'accepted') === 'pending')
+                <form action="{{ route('handover.accept', $first->uuid ?? ($first->no_surat ?: $first->id)) }}" method="POST" class="d-inline" id="formAcceptReceipt">
+                    @csrf
+                    <button type="button" class="btn btn-sm btn-success px-3 shadow-sm fw-bold" id="btnAcceptReceipt">
+                        <i class="fas fa-check-circle me-1"></i> {{ __('Konfirmasi Penerimaan Aset') }}
+                    </button>
+                </form>
+            @else
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 fw-bold" style="font-size: 0.8rem;">
+                    <i class="fas fa-check-circle me-1"></i> {{ __('Telah Dikonfirmasi Diterima') }}
+                </span>
+            @endif
+
             <button onclick="window.print()" class="btn btn-sm btn-primary px-3 shadow-sm" style="background-color: var(--phoenix-primary); border-color: var(--phoenix-primary);">
-                <i class="fas fa-print me-1"></i> Cetak / Simpan PDF
+                <i class="fas fa-print me-1"></i> {{ __('Cetak / Simpan PDF') }}
             </button>
         </div>
     </div>
 </div>
 
+@php
+    $logoFile = null;
+    $possibleFiles = ['logosbl.png', 'logosbl.jpg', 'logosbl.svg', 'logo.png', 'logo.jpg', 'logo.jpeg', 'logo.svg', 'logo.webp'];
+    foreach($possibleFiles as $file) {
+        if(file_exists(public_path('assets/images/' . $file))) {
+            $logoFile = asset('assets/images/' . $file);
+            break;
+        }
+    }
+    if(!$logoFile && is_dir(public_path('assets/images'))) {
+        $scanned = scandir(public_path('assets/images'));
+        foreach($scanned as $f) {
+            if(preg_match('/\.(png|jpe?g|svg|webp)$/i', $f)) {
+                $logoFile = asset('assets/images/' . $f);
+                break;
+            }
+        }
+    }
+@endphp
+
 <div class="receipt-container">
     <!-- Header Dokumen / Kop Surat -->
     <div class="doc-header d-flex justify-content-between align-items-center">
-        <div>
-            <div class="company-title"><i class="fas fa-boxes-stacked text-primary me-2 no-print"></i>SBL IT ASSETS MANAGEMENT</div>
+        <div class="d-flex align-items-center gap-3">
+            @if($logoFile)
+                <img src="{{ $logoFile }}" alt="Logo PT. SCG Barito Logistics" style="max-height: 48px; max-width: 140px; object-fit: contain;">
+            @endif
+            <div>
+                <div class="company-title">PANDORA IT OPERATIONS</div>
+                <div class="company-subtitle">IT Dept. PT. SCG Barito Logistics</div>
+            </div>
         </div>
         <div class="text-end">
-            <div class="badge bg-dark text-white px-2 py-1" style="font-size: 11px;">OFFICIAL RECORD</div>
+            @if(($first->status_terima ?? 'accepted') === 'accepted')
+                <div class="badge bg-success text-white px-2 py-1" style="font-size: 11px;">DITERIMA (VERIFIED)</div>
+            @else
+                <div class="badge bg-warning text-dark px-2 py-1" style="font-size: 11px;">MENUNGGU KONFIRMASI</div>
+            @endif
             <div class="small text-muted mt-1">{{ \Carbon\Carbon::parse($first->tanggal_serah_terima ?? now())->translatedFormat('d F Y') }}</div>
         </div>
     </div>
@@ -328,7 +373,7 @@
                         <td>: IT Department / Support</td>
                     </tr>
                     <tr>
-                        <td class="label">Peran</td>
+                        <td class="label">Posisi / Role</td>
                         <td>: IT Asset Administrator</td>
                     </tr>
                 </table>
@@ -360,7 +405,7 @@
     </div>
 
     <!-- Tabel Daftar Aset yang Diserahterimakan -->
-    <div class="fw-bold mb-1" style="font-size: 12px; color: #141824;"><i class="fas fa-desktop me-1 text-primary"></i> RINCIAN PERANGKAT / HARDWARE YANG DISERAHKAN:</div>
+    <div class="fw-bold mb-1" style="font-size: 12px; color: #141824;">RINCIAN PERANGKAT / HARDWARE YANG DISERAHKAN:</div>
     <table class="table-items">
         <thead>
             <tr>
@@ -417,21 +462,35 @@
             <div class="col-4">
                 <div class="signature-box">
                     <div class="signature-role">Yang Menyerahkan,</div>
-                    <div class="signature-name">{{ $first->diserahkan_oleh ?? Auth::user()->name }}</div>
+                    <div class="signature-name" style="margin-top: 50px;">{{ $first->diserahkan_oleh ?? Auth::user()->name }}</div>
                     <div class="signature-dept">IT Department</div>
                 </div>
             </div>
             <div class="col-4">
                 <div class="signature-box">
                     <div class="signature-role">Yang Menerima,</div>
-                    <div class="signature-name">{{ $first->penerima_nama ?? ($first->user->name ?? 'Karyawan / User') }}</div>
+                    @if(($first->status_terima ?? 'accepted') === 'accepted')
+                        <div class="my-2 p-2 rounded-2 border border-success bg-light text-success text-center" style="font-size: 10.5px; border-style: dashed !important;">
+                            <i class="fas fa-circle-check text-success fs-5 d-block mb-1"></i>
+                            <strong class="d-block text-dark font-monospace" style="font-size: 11px;">TERKONFIRMASI DIGITAL</strong>
+                            <span class="text-muted" style="font-size: 10px;">{{ $first->accepted_at ? \Carbon\Carbon::parse($first->accepted_at)->format('d F Y - H:i') . ' WIB' : 'Telah Diterima' }}</span>
+                        </div>
+                        <div class="signature-name">{{ $first->penerima_nama ?? ($first->user->name ?? 'Karyawan / User') }}</div>
+                    @else
+                        <div class="my-2 p-2 rounded-2 border border-warning bg-light text-warning-emphasis text-center no-print" style="font-size: 10.5px; border-style: dashed !important;">
+                            <i class="fas fa-clock text-warning fs-5 d-block mb-1"></i>
+                            <strong class="d-block font-monospace" style="font-size: 11px;">MENUNGGU KONFIRMASI</strong>
+                            <span class="text-muted" style="font-size: 10px;">Belum Dikonfirmasi Digital</span>
+                        </div>
+                        <div class="signature-name" style="margin-top: 50px;">{{ $first->penerima_nama ?? ($first->user->name ?? 'Karyawan / User') }}</div>
+                    @endif
                     <div class="signature-dept">{{ $first->penerima_dept ?? 'Pengguna Aset' }}</div>
                 </div>
             </div>
             <div class="col-4">
                 <div class="signature-box">
                     <div class="signature-role">Mengetahui,</div>
-                    <div class="signature-name">Head of IT / Supervisor</div>
+                    <div class="signature-name" style="margin-top: 50px;">Head of IT / Supervisor</div>
                     <div class="signature-dept">Management IT</div>
                 </div>
             </div>
@@ -439,6 +498,8 @@
     </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     window.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams(window.location.search);
@@ -446,6 +507,29 @@
             setTimeout(function() {
                 window.print();
             }, 350);
+        }
+
+        const btnAccept = document.getElementById('btnAcceptReceipt');
+        const formAccept = document.getElementById('formAcceptReceipt');
+        if (btnAccept && formAccept) {
+            btnAccept.addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: '{{ __("Konfirmasi Penerimaan Aset?") }}',
+                    text: '{{ __("Saya menyatakan telah menerima seluruh unit perangkat IT sesuai dengan rincian dokumen ini.") }}',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#25b865',
+                    cancelButtonColor: '#6e7891',
+                    confirmButtonText: '<i class="fas fa-check me-1"></i> {{ __("Ya, Konfirmasi Terima") }}',
+                    cancelButtonText: '{{ __("Batal") }}',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formAccept.submit();
+                    }
+                });
+            });
         }
     });
 </script>

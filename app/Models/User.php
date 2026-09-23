@@ -80,4 +80,16 @@ class User extends Authenticatable
         }
         return 'Staff Pengguna';
     }
+
+    public function pendingHandoversCount(): int
+    {
+        $userName = strtolower(trim($this->name));
+        return RiwayatAset::where('status_terima', 'pending')
+            ->where(function ($q) use ($userName) {
+                $q->where('user_id', $this->id)
+                  ->orWhereRaw('LOWER(penerima_nama) LIKE ?', ['%' . $userName . '%']);
+            })
+            ->distinct('no_surat')
+            ->count('no_surat');
+    }
 }

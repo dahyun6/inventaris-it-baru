@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SBL IT Assets')</title>
+    <title>@yield('title', 'Pandora IT Operations Hub')</title>
 
     <!-- Google Fonts: Nunito Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -732,17 +732,29 @@
                 <i class="fas fa-boxes-stacked"></i>
             </div>
             <div>
-                <div class="brand-title">SBL Assets</div>
-                <div class="brand-subtitle">IT Inventory v1.24</div>
+                <div class="brand-title">Pandora</div>
+                <div class="brand-subtitle">IT Operations Hub</div>
             </div>
         </a>
 
         <div class="sidebar-nav-container">
             @if(Auth::user()?->isStaff())
+                @php
+                    $pendingHandoverCount = Auth::user()->pendingHandoversCount();
+                @endphp
                 <div class="nav-label">{{ __('Menu Utama') }}</div>
                 <a href="{{ route('barang.index') }}" class="phoenix-nav-link {{ request()->routeIs('barang.index') || request()->routeIs('barang.show') ? 'active' : '' }}">
                     <i class="fas fa-laptop-code"></i>
                     <span>{{ __('Master Assets') }}</span>
+                </a>
+                <a href="{{ route('handover.history') }}" class="phoenix-nav-link {{ request()->routeIs('handover.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-signature"></i>
+                    <span class="flex-grow-1">{{ __('Tanda Terima & BAST') }}</span>
+                    @if($pendingHandoverCount > 0)
+                        <span class="badge rounded-pill bg-warning text-dark font-monospace fw-bold" style="font-size: 0.7rem; padding: 0.25em 0.6em;" title="{{ $pendingHandoverCount }} dokumen menunggu konfirmasi">
+                            {{ $pendingHandoverCount }}
+                        </span>
+                    @endif
                 </a>
                 <a href="{{ route('ticket.index') }}" class="phoenix-nav-link {{ request()->routeIs('ticket.*') ? 'active' : '' }}">
                     <i class="fas fa-headset"></i>

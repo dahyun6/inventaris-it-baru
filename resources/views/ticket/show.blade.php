@@ -7,7 +7,7 @@
     <a href="{{ route('ticket.index') }}" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> {{ __('Daftar Tiket') }}
     </a>
-    <a href="{{ route('ticket.print', $ticket->id) }}" target="_blank" class="btn btn-phoenix-secondary btn-sm">
+    <a href="{{ route('ticket.print', $ticket->uuid) }}" target="_blank" class="btn btn-phoenix-secondary btn-sm">
         <i class="fas fa-print me-1"></i> {{ __('Cetak Formulir') }}
     </a>
     @if(!Auth::user()?->isStaff())
@@ -281,7 +281,7 @@
                 </h6>
             </div>
             <div class="phoenix-card-body p-4">
-                <form action="{{ route('ticket.response', $ticket->id) }}" method="POST">
+                <form action="{{ route('ticket.response', $ticket->uuid) }}" method="POST">
                     @csrf
 
                     @if(Auth::user()?->isStaff())
@@ -364,7 +364,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form action="{{ route('ticket.update', $ticket->id) }}" method="POST" id="formEditTicket">
+            <form action="{{ route('ticket.update', $ticket->uuid) }}" method="POST" id="formEditTicket">
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">

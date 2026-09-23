@@ -103,7 +103,7 @@ class TicketController extends Controller
         $authorName = $user?->name ?? 'User Helpdesk';
         $this->ticketService->addResponse($ticket, $payload, Auth::id(), $authorName);
 
-        return redirect()->route('ticket.show', $ticket->id)
+        return redirect()->route('ticket.show', $ticket->uuid)
             ->with('success', 'Tanggapan tiket berhasil dikirim!');
     }
 

@@ -62,7 +62,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('lokasi', LokasiController::class)->except(['create', 'edit', 'show']);
 
         // Handover & Surat Tanda Terima (Receipt Admin Actions)
-        Route::get('/handover-history', [HandoverController::class, 'index'])->name('handover.history');
         Route::get('/handover/create', [HandoverController::class, 'create'])->name('handover.create');
         Route::post('/handover', [HandoverController::class, 'store'])->name('handover.store');
 
@@ -94,7 +93,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/barang/{barang}', [BarangController::class, 'show'])->name('barang.show');
     Route::get('/barang/{barang}/barcode', [BarangController::class, 'printBarcode'])->name('barang.barcode');
     Route::get('/barang/{barang}/qrcode', [BarangController::class, 'printBarcode'])->name('barang.qrcode');
+
+    // Handover & BAST (Shared: Staff views assigned handovers, Admin views all)
+    Route::get('/handover-history', [HandoverController::class, 'index'])->name('handover.history');
     Route::get('/handover/receipt/{no_surat?}', [HandoverController::class, 'receipt'])->where('no_surat', '.*')->name('handover.receipt');
+    Route::post('/handover/accept/{no_surat?}', [HandoverController::class, 'accept'])->where('no_surat', '.*')->name('handover.accept');
 
     // IT Helpdesk (Shared Routes: List, Create, Show, Response, Print)
     Route::get('/ticket', [TicketController::class, 'index'])->name('ticket.index');

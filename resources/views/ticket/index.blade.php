@@ -191,7 +191,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <a href="{{ route('ticket.show', $row->id) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
+                            <a href="{{ route('ticket.show', $row->uuid) }}" class="badge bg-light text-primary border font-monospace px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
                                 {{ $row->no_tiket }}
                             </a>
                         </td>
@@ -209,7 +209,7 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark mb-1">
-                                <a href="{{ route('ticket.show', $row->id) }}" class="text-decoration-none text-dark hover-primary">
+                                <a href="{{ route('ticket.show', $row->uuid) }}" class="text-decoration-none text-dark hover-primary">
                                     {{ Str::limit($row->judul, 40) }}
                                 </a>
                             </div>
@@ -257,17 +257,17 @@
                         </td>
                         <td class="text-center text-nowrap">
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ route('ticket.show', $row->id) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Tiket') }}">
+                                <a href="{{ route('ticket.show', $row->uuid) }}" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Detail Tiket') }}">
                                     <i class="fas fa-comments text-primary"></i>
                                 </a>
-                                <a href="{{ route('ticket.print', $row->id) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak Tiket') }}">
+                                <a href="{{ route('ticket.print', $row->uuid) }}" target="_blank" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Cetak Tiket') }}">
                                     <i class="fas fa-print text-secondary"></i>
                                 </a>
                                 @if(!Auth::user()?->isStaff())
                                 <button type="button" class="btn btn-phoenix-secondary py-1 px-2 btn-edit-ticket"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEditTicket"
-                                    data-url="{{ route('ticket.update', $row->id) }}"
+                                    data-url="{{ route('ticket.update', $row->uuid) }}"
                                     data-no-tiket="{{ $row->no_tiket }}"
                                     data-user-id="{{ $row->user_id }}"
                                     data-nama-pelapor="{{ $row->nama_pelapor }}"
@@ -285,7 +285,7 @@
                                     title="{{ __('Edit Tiket') }}">
                                     <i class="fas fa-pencil text-warning"></i>
                                 </button>
-                                <form action="{{ route('ticket.destroy', $row->id) }}" method="POST" class="d-inline form-delete-ticket">
+                                <form action="{{ route('ticket.destroy', $row->uuid) }}" method="POST" class="d-inline form-delete-ticket">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-phoenix-secondary py-1 px-2" title="{{ __('Hapus') }}">

@@ -70,7 +70,7 @@
             body {
                 background: #ffffff !important;
             }
-            .screen-toolbar, .no-print {
+            .screen-toolbar, .no-print, .fas, .far, .fab, .fa, i {
                 display: none !important;
             }
             .report-page {
@@ -108,11 +108,37 @@
     </div>
 </div>
 
+@php
+    $logoFile = null;
+    $possibleFiles = ['logosbl.png', 'logosbl.jpg', 'logosbl.svg', 'logo.png', 'logo.jpg', 'logo.jpeg', 'logo.svg', 'logo.webp'];
+    foreach($possibleFiles as $file) {
+        if(file_exists(public_path('assets/images/' . $file))) {
+            $logoFile = asset('assets/images/' . $file);
+            break;
+        }
+    }
+    if(!$logoFile && is_dir(public_path('assets/images'))) {
+        $scanned = scandir(public_path('assets/images'));
+        foreach($scanned as $f) {
+            if(preg_match('/\.(png|jpe?g|svg|webp)$/i', $f)) {
+                $logoFile = asset('assets/images/' . $f);
+                break;
+            }
+        }
+    }
+@endphp
+
 <div class="report-page">
     <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
-        <div>
-            <h4 class="fw-bold text-dark mb-1" style="font-size: 1.25rem;"><i class="fas fa-headset text-primary me-2 no-print"></i>SBL IT HELPDESK & SUPPORT</h4>
-            <div class="text-secondary small">{{ __('Laporan Rekapitulasi Tiket Layanan & Penanganan Masalah IT') }}</div>
+        <div class="d-flex align-items-center gap-3">
+            @if($logoFile)
+                <img src="{{ $logoFile }}" alt="Logo PT. SCG Barito Logistics" style="max-height: 48px; max-width: 140px; object-fit: contain;">
+            @endif
+            <div>
+                <h4 class="fw-bold text-dark mb-0" style="font-size: 1.25rem;">PANDORA IT HELPDESK & SUPPORT</h4>
+                <div class="fw-semibold text-muted small">IT Dept. PT. SCG Barito Logistics</div>
+                <div class="text-secondary small mt-1">{{ __('Laporan Rekapitulasi Tiket Layanan & Penanganan Masalah IT') }}</div>
+            </div>
         </div>
         <div class="text-end font-mono">
             <div class="badge bg-dark text-white px-2 py-1">{{ __('HELPDESK LOG') }}</div>

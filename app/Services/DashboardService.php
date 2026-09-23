@@ -37,14 +37,41 @@ class DashboardService
     }
 
     /**
-     * Get latest handovers.
+     * Get latest handovers with origin/destination tracking per unit.
      */
-    public function getRecentHandovers(int $limit = 4): Collection
+    public function getRecentHandovers(int $limit = 5): Collection
     {
-        return RiwayatAset::with(['barang', 'user'])
-            ->latest('tanggal_serah_terima')
+        $handovers = RiwayatAset::with(['barang.category', 'user'])
+            ->orderByDesc('tanggal_serah_terima')
+            ->orderByDesc('id')
             ->take($limit)
             ->get();
+
+        if ($handovers->isEmpty()) {
+            return $handovers;
+        }
+
+        $barangIds = $handovers->pluck('barang_id')->unique();
+
+        $priorLogs = RiwayatAset::whereIn('barang_id', $barangIds)
+            ->where('id', '<', $handovers->max('id'))
+            ->orderByDesc('tanggal_serah_terima')
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('barang_id');
+
+        foreach ($handovers as $log) {
+            $prev = $priorLogs->get($log->barang_id, collect())
+                ->first(fn($p) => $p->id < $log->id);
+
+            $log->setAttribute('lokasi_asal', $prev?->lokasi ?: 'Gudang IT');
+            $log->setAttribute('pemberi_nama', !empty($log->diserahkan_oleh) 
+                ? $log->diserahkan_oleh 
+                : ($prev?->penerima_nama ?: ($prev?->user?->name ?: 'Gudang IT')));
+            $log->setAttribute('penerima_display', $log->penerima_nama ?: ($log->user?->name ?: 'Gudang IT'));
+        }
+
+        return $handovers;
     }
 
     /**

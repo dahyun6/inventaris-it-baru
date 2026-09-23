@@ -16,9 +16,27 @@ class HandoverController extends Controller
 
     public function index(): View
     {
-        $handovers = $this->handoverService->getAllHistory();
+        $user = auth()->user();
+        $handovers = $this->handoverService->getAllHistory($user);
 
         return view('handover.index', compact('handovers'));
+    }
+
+    public function accept(Request $request, $no_surat = null): RedirectResponse
+    {
+        $raw = $no_surat ?? $request->input('no_surat') ?? $request->input('id');
+        if (!$raw) {
+            return redirect()->back()->with('error', 'Nomor surat tanda terima tidak valid.');
+        }
+
+        try {
+            $this->handoverService->acceptHandover((string) $raw, auth()->user());
+            return redirect()->back()->with('success', 'Konfirmasi Penerimaan Aset berhasil disimpan!');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memproses konfirmasi: ' . $e->getMessage());
+        }
     }
 
     public function create(): View
@@ -35,10 +53,11 @@ class HandoverController extends Controller
 
     public function store(StoreHandoverRequest $request): RedirectResponse
     {
-        $noSurat = $this->handoverService->processHandover($request->validated());
+        $result = $this->handoverService->processHandover($request->validated());
+        $target = $result['uuid'] ?? $result['no_surat'];
 
-        return redirect()->route('handover.receipt', ['no_surat' => urlencode($noSurat)])
-            ->with('success', 'Surat Tanda Terima Serah Terima Aset (' . $noSurat . ') berhasil diterbitkan!');
+        return redirect()->route('handover.receipt', ['no_surat' => $target])
+            ->with('success', 'Surat Tanda Terima Serah Terima Aset (' . $result['no_surat'] . ') berhasil diterbitkan!');
     }
 
     public function receipt(Request $request, $no_surat = null): View|RedirectResponse
